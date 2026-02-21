@@ -1,0 +1,201 @@
+import { createClient } from '@/lib/supabase/server'
+import { notFound } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import Link from 'next/link'
+
+interface ProfilePageProps {
+  params: Promise<{
+    username: string
+  }>
+}
+
+export default async function ProfilePage({ params }: ProfilePageProps) {
+  const { username } = await params
+  const supabase = await createClient()
+
+  // Fetch user profile
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('username', username)
+    .single()
+
+  if (profileError || !profile) {
+    notFound()
+  }
+
+  // Fetch user's posts
+  const { data: posts } = await supabase
+    .from('posts')
+    .select('id, title, excerpt, created_at, upvote_count, comment_count')
+    .eq('user_id', profile.id)
+    .eq('is_published', true)
+    .order('created_at', { ascending: false })
+    .limit(10)
+
+  // Check if current user is the profile owner
+  const {
+    data: { user: currentUser },
+  } = await supabase.auth.getUser()
+  const isOwnProfile = currentUser?.id === profile.id
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Banner */}
+      <div className="h-32 bg-gradient-to-r from-blue-500 to-purple-500" />
+
+      <div className="container mx-auto px-4 pb-12">
+        <div className="max-w-4xl">
+          {/* Profile Header */}
+          <Card className="-mt-16 mb-6 relative z-10">
+            <CardContent className="pt-6">
+              <div className="flex flex-col md:flex-row gap-6 items-start md:items-end">
+                {/* Avatar */}
+                <div className="flex-shrink-0">
+                  <div className="w-32 h-32 rounded-full bg-muted border-4 border-background overflow-hidden flex items-center justify-center">
+                    {profile.avatar_url ? (
+                      <img
+                        src={profile.avatar_url}
+                        alt={profile.full_name || profile.username}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-white text-4xl font-bold">
+                        {profile.username.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Profile Info */}
+                <div className="flex-grow">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h1 className="text-3xl font-bold">{profile.full_name || profile.username}</h1>
+                    {profile.is_verified && (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                        ✓ Verified
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-muted-foreground mb-2">@{profile.username}</p>
+                  {profile.bio && <p className="mb-4">{profile.bio}</p>}
+
+                  {/* Stats */}
+                  <div className="flex gap-6 mb-4">
+                    <div>
+                      <div className="font-bold text-lg">{profile.total_posts}</div>
+                      <div className="text-xs text-muted-foreground">Posts</div>
+                    </div>
+                    <div>
+                      <div className="font-bold text-lg">{profile.total_followers}</div>
+                      <div className="text-xs text-muted-foreground">Followers</div>
+                    </div>
+                    <div>
+                      <div className="font-bold text-lg">{profile.total_following}</div>
+                      <div className="text-xs text-muted-foreground">Following</div>
+                    </div>
+                    <div>
+                      <div className="font-bold text-lg">{profile.reputation_points}</div>
+                      <div className="text-xs text-muted-foreground">Reputation</div>
+                    </div>
+                  </div>
+
+                  {/* Location and Website */}
+                  <div className="flex gap-4 text-sm text-muted-foreground mb-4">
+                    {profile.location && <span>📍 {profile.location}</span>}
+                    {profile.website_url && (
+                      <a href={profile.website_url} target="_blank" rel="noopener noreferrer" className="hover:text-primary">
+                        🌐 Website
+                      </a>
+                    )}
+                  </div>
+
+                  {/* Action Buttons */}
+                  {isOwnProfile ? (
+                    <div className="flex gap-2">
+                      <Button asChild>
+                        <Link href="/settings/profile">Edit Profile</Link>
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Button>Follow</Button>
+                      <Button variant="outline">Message</Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Tabs */}
+          <div className="mb-6">
+            <div className="border-b">
+              <div className="flex gap-4">
+                <button className="px-4 py-2 border-b-2 border-primary font-medium">
+                  Posts
+                </button>
+                {isOwnProfile && (
+                  <>
+                    <button className="px-4 py-2 text-muted-foreground hover:text-foreground">
+                      Collections
+                    </button>
+                    <button className="px-4 py-2 text-muted-foreground hover:text-foreground">
+                      Series
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Posts List */}
+          <div className="space-y-4">
+            {posts && posts.length > 0 ? (
+              posts.map((post) => (
+                <Card key={post.id}>
+                  <CardContent className="pt-6">
+                    <Link href={`/posts/${post.id}`} className="hover:text-primary">
+                      <h3 className="text-lg font-bold mb-2">{post.title}</h3>
+                    </Link>
+                    {post.excerpt && <p className="text-muted-foreground mb-3">{post.excerpt}</p>}
+                    <div className="flex gap-4 text-sm text-muted-foreground">
+                      <span>👍 {post.upvote_count} upvotes</span>
+                      <span>💬 {post.comment_count} comments</span>
+                      <span>
+                        {new Date(post.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <Card>
+                <CardContent className="pt-6 text-center text-muted-foreground">
+                  No posts yet
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export async function generateMetadata({ params }: ProfilePageProps) {
+  const { username } = await params
+  const supabase = await createClient()
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('full_name, bio')
+    .eq('username', username)
+    .single()
+
+  return {
+    title: `${profile?.full_name || username} - LearnLoop`,
+    description: profile?.bio || `${username}'s profile on LearnLoop`,
+  }
+}
