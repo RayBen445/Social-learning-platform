@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to LearnLoop!</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f8f9fa; }
+    .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+    .header { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 40px 20px; text-align: center; }
+    .logo { font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px; margin-bottom: 12px; }
+    .tagline { font-size: 16px; color: rgba(255,255,255,0.9); }
+    .content { padding: 40px 20px; }
+    .greeting { font-size: 28px; font-weight: 700; color: #1f2937; margin-bottom: 16px; }
+    .intro-text { font-size: 16px; color: #4b5563; line-height: 1.8; margin-bottom: 32px; }
+    .features { margin: 32px 0; }
+    .feature { display: flex; margin-bottom: 20px; }
+    .feature-icon { width: 40px; height: 40px; background-color: #6366f1; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 16px; flex-shrink: 0; }
+    .feature-icon svg { width: 20px; height: 20px; color: #ffffff; }
+    .feature-text h3 { font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 4px; }
+    .feature-text p { font-size: 14px; color: #6b7280; }
+    .cta-button { background-color: #6366f1; color: #ffffff; padding: 14px 32px; border-radius: 8px; text-decoration: none; display: inline-block; font-weight: 600; font-size: 16px; margin: 24px 0; }
+    .cta-button:hover { background-color: #4f46e5; }
+    .tips-section { background-color: #fef3c7; padding: 20px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #f59e0b; }
+    .tips-section h3 { color: #92400e; font-size: 16px; margin-bottom: 8px; }
+    .tips-section ul { color: #78350f; font-size: 14px; line-height: 1.6; padding-left: 20px; }
+    .support-text { font-size: 14px; color: #6b7280; margin-top: 32px; }
+    .footer { background-color: #f9fafb; padding: 24px 20px; text-align: center; border-top: 1px solid #e5e7eb; font-size: 14px; color: #6b7280; }
+    .footer-link { color: #6366f1; text-decoration: none; }
+    @media (max-width: 600px) {
+      .container { width: 100%; }
+      .content { padding: 24px 16px; }
+      .greeting { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">LearnLoop</div>
+      <div class="tagline">Where Learning Happens Together</div>
+    </div>
+    
+    <div class="content">
+      <div class="greeting">Welcome to LearnLoop, {{user_name}}!</div>
+      
+      <p class="intro-text">
+        Thank you for joining our community! LearnLoop is a space where students, educators, and lifelong learners come together to share knowledge, ask questions, and grow together.
+      </p>
+      
+      <div class="features">
+        <div class="feature">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+              <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+            </svg>
+          </div>
+          <div class="feature-text">
+            <h3>Create & Share</h3>
+            <p>Post your thoughts, ask questions, and share resources with the community.</p>
+          </div>
+        </div>
+        
+        <div class="feature">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </div>
+          <div class="feature-text">
+            <h3>Engage & Learn</h3>
+            <p>Comment on posts, vote on content, and join discussions on topics you care about.</p>
+          </div>
+        </div>
+        
+        <div class="feature">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+          </div>
+          <div class="feature-text">
+            <h3>Earn Recognition</h3>
+            <p>Build your reputation through helpful posts and meaningful contributions.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div style="text-align: center;">
+        <a href="{{dashboard_link}}" class="cta-button">Go to Your Dashboard</a>
+      </div>
+      
+      <div class="tips-section">
+        <h3>Getting Started Tips:</h3>
+        <ul>
+          <li>Complete your profile to help others get to know you</li>
+          <li>Browse topics and subscribe to ones you're interested in</li>
+          <li>Read the Code of Conduct to understand our community values</li>
+          <li>Don't be shy—ask questions and share your knowledge!</li>
+        </ul>
+      </div>
+      
+      <p class="support-text">
+        Have questions? Check out our <a href="{{help_link}}" class="footer-link">Help Center</a> or reply to this email. We're here to help!
+      </p>
+    </div>
+    
+    <div class="footer">
+      <p style="margin-bottom: 12px;">© 2026 Cool Shot Systems. All rights reserved.</p>
+      <p>
+        <a href="{{settings_link}}" class="footer-link">Email Preferences</a> | 
+        <a href="{{privacy_link}}" class="footer-link">Privacy Policy</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>

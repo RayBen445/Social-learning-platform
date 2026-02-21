@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Your LearnLoop Email</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f8f9fa; line-height: 1.6; }
+    .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+    .header { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 40px 20px; text-align: center; }
+    .logo { font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px; }
+    .content { padding: 40px 20px; }
+    .greeting { font-size: 24px; font-weight: 600; color: #1f2937; margin-bottom: 16px; }
+    .description { font-size: 16px; color: #6b7280; margin-bottom: 32px; line-height: 1.6; }
+    .verify-btn { background-color: #6366f1; color: #ffffff; padding: 14px 32px; border-radius: 8px; text-decoration: none; display: inline-block; font-weight: 600; font-size: 16px; margin-bottom: 24px; transition: background-color 0.3s ease; }
+    .verify-btn:hover { background-color: #4f46e5; }
+    .code-section { background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 24px 0; text-align: center; }
+    .code { font-size: 32px; font-weight: 700; color: #6366f1; letter-spacing: 2px; font-family: 'Courier New', monospace; }
+    .code-label { font-size: 14px; color: #6b7280; margin-top: 8px; }
+    .footer { background-color: #f9fafb; padding: 24px 20px; text-align: center; border-top: 1px solid #e5e7eb; font-size: 14px; color: #6b7280; }
+    .footer-link { color: #6366f1; text-decoration: none; }
+    .security-note { background-color: #f0fdf4; padding: 16px; border-left: 4px solid #10b981; border-radius: 4px; margin: 24px 0; font-size: 14px; color: #166534; }
+    .expiration { font-size: 14px; color: #ef4444; margin-top: 16px; }
+    @media (max-width: 600px) {
+      .container { width: 100%; }
+      .content { padding: 24px 16px; }
+      .greeting { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">LearnLoop</div>
+    </div>
+    
+    <div class="content">
+      <div class="greeting">Verify Your Email Address</div>
+      
+      <p class="description">
+        Welcome to LearnLoop! We're excited to have you join our community of learners and educators. To complete your signup, please verify your email address.
+      </p>
+      
+      <div style="text-align: center; margin-bottom: 24px;">
+        <a href="{{verification_link}}" class="verify-btn">Verify Email</a>
+      </div>
+      
+      <p class="description">Or use this verification code:</p>
+      
+      <div class="code-section">
+        <div class="code">{{verification_code}}</div>
+        <div class="code-label">Verification Code</div>
+      </div>
+      
+      <div class="security-note">
+        <strong>Security tip:</strong> Never share this code with anyone. Cool Shot Systems will never ask for this code via email or message.
+      </div>
+      
+      <div class="expiration">
+        This link will expire in 24 hours. If you didn't create this account, please ignore this email.
+      </div>
+      
+      <p class="description" style="margin-top: 32px;">
+        If the button doesn't work, copy and paste this link into your browser:<br>
+        <small style="word-break: break-all; color: #6366f1;">{{verification_link}}</small>
+      </p>
+    </div>
+    
+    <div class="footer">
+      <p style="margin-bottom: 12px;">© 2026 Cool Shot Systems. All rights reserved.</p>
+      <p>
+        <a href="{{unsubscribe_link}}" class="footer-link">Unsubscribe</a> | 
+        <a href="{{privacy_link}}" class="footer-link">Privacy Policy</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
