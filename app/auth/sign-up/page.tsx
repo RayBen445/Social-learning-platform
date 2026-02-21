@@ -72,9 +72,13 @@ export default function SignUpPage() {
       const verificationCode = Math.random().toString(36).substring(2, 8).toUpperCase()
 
       // Send verification email via Resend
-      await handleSignUpEmail(email, verificationLink, verificationCode)
+      const emailResult = await handleSignUpEmail(email, verificationLink, verificationCode)
+      
+      if (!emailResult?.success) {
+        console.warn('Verification email may have failed to send, but account created successfully')
+      }
 
-      router.push('/auth/sign-up-success')
+      router.push(`/auth/sign-up-success?email=${encodeURIComponent(email)}`)
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An error occurred during sign up')
     } finally {

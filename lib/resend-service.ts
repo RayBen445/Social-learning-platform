@@ -65,41 +65,157 @@ export async function sendVerificationEmail(
     <html>
       <head>
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center; }
-          .header h1 { margin: 0; font-size: 28px; }
-          .content { background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px; }
-          .code-box { background: white; border: 2px solid #667eea; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0; }
-          .code { font-size: 32px; font-weight: bold; letter-spacing: 4px; color: #667eea; font-family: 'Courier New', monospace; }
-          .button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
-          .footer { font-size: 12px; color: #999; text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; }
+          body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; 
+            line-height: 1.6; 
+            color: #1f2937; 
+            background: #f3f4f6;
+            margin: 0;
+            padding: 0;
+          }
+          .wrapper { background: #f3f4f6; padding: 20px 0; }
+          .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+          .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 30px; text-align: center; }
+          .header h1 { margin: 0; font-size: 28px; font-weight: 600; letter-spacing: -0.5px; }
+          .header p { margin: 8px 0 0 0; opacity: 0.95; font-size: 14px; }
+          .content { padding: 40px 30px; }
+          .greeting { font-size: 16px; margin-bottom: 20px; }
+          .code-section { background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 8px; padding: 24px; text-align: center; margin: 30px 0; }
+          .code-label { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+          .code { font-size: 36px; font-weight: 700; letter-spacing: 6px; color: #667eea; font-family: 'Monaco', 'Courier New', monospace; }
+          .or-divider { text-align: center; color: #9ca3af; font-size: 13px; margin: 24px 0; }
+          .button-wrapper { text-align: center; margin: 30px 0; }
+          .button { 
+            display: inline-block; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; 
+            padding: 14px 40px; 
+            text-decoration: none; 
+            border-radius: 8px; 
+            font-weight: 600;
+            font-size: 14px;
+            transition: transform 0.2s;
+          }
+          .button:hover { transform: translateY(-2px); }
+          .details { background: #fef3c7; border-left: 4px solid #fbbf24; padding: 16px; border-radius: 4px; margin: 24px 0; font-size: 14px; color: #92400e; }
+          .details strong { color: #78350f; }
+          .steps { margin: 30px 0; }
+          .step { margin-bottom: 16px; display: flex; gap: 12px; }
+          .step-number { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            width: 28px; 
+            height: 28px; 
+            min-width: 28px;
+            background: #e0e7ff; 
+            color: #667eea; 
+            border-radius: 50%; 
+            font-weight: 600; 
+            font-size: 12px;
+          }
+          .step-content { flex: 1; }
+          .step-content p { margin: 0; font-size: 14px; }
+          .step-content strong { color: #1f2937; }
+          .step-content .text-muted { color: #6b7280; font-size: 13px; }
+          .security-note { 
+            background: #dbeafe; 
+            border: 1px solid #93c5fd; 
+            border-radius: 6px; 
+            padding: 12px; 
+            margin: 20px 0; 
+            font-size: 12px; 
+            color: #0c4a6e;
+          }
+          .footer { 
+            background: #f9fafb; 
+            border-top: 1px solid #e5e7eb;
+            padding: 24px 30px; 
+            text-align: center; 
+            font-size: 12px; 
+            color: #6b7280;
+          }
+          .footer p { margin: 8px 0; }
+          .footer a { color: #667eea; text-decoration: none; }
+          .footer a:hover { text-decoration: underline; }
+          @media (max-width: 600px) {
+            .container { border-radius: 8px; }
+            .header { padding: 30px 20px; }
+            .header h1 { font-size: 24px; }
+            .content { padding: 24px 20px; }
+            .code { font-size: 28px; letter-spacing: 4px; }
+            .button { padding: 12px 30px; font-size: 14px; }
+          }
         </style>
       </head>
       <body>
-        <div class="container">
-          <div class="header">
-            <h1>Verify Your Email</h1>
-          </div>
-          <div class="content">
-            <p>Welcome to LearnLoop! To complete your signup, please verify your email address.</p>
-            
-            <div class="code-box">
-              <p style="margin: 0 0 10px 0; color: #999; font-size: 14px;">Verification Code</p>
-              <div class="code">${verificationCode}</div>
+        <div class="wrapper">
+          <div class="container">
+            <div class="header">
+              <h1>Verify Your Email</h1>
+              <p>Welcome to LearnLoop! Let's get you started.</p>
             </div>
-            
-            <p style="text-align: center;">Or click the button below:</p>
-            <div style="text-align: center;">
-              <a href="${verificationLink}" class="button">Verify Email Address</a>
+            <div class="content">
+              <p class="greeting">Hi there,</p>
+              <p>Thanks for signing up for LearnLoop! To access your account and start learning, please verify your email address using the code below:</p>
+              
+              <div class="code-section">
+                <div class="code-label">Verification Code</div>
+                <div class="code">${verificationCode}</div>
+              </div>
+
+              <div class="or-divider">or</div>
+
+              <div class="button-wrapper">
+                <a href="${verificationLink}" class="button">Verify Email</a>
+              </div>
+
+              <div class="security-note">
+                <strong>Security Tip:</strong> Don't share this code with anyone. LearnLoop staff will never ask for it.
+              </div>
+
+              <div class="details">
+                <strong>⏱️ This code expires in 24 hours</strong>
+              </div>
+
+              <h3 style="margin-top: 30px; margin-bottom: 16px; font-size: 16px; color: #1f2937;">Next Steps</h3>
+              <div class="steps">
+                <div class="step">
+                  <div class="step-number">1</div>
+                  <div class="step-content">
+                    <strong>Paste the code</strong>
+                    <p class="text-muted">Or click the link above to auto-verify</p>
+                  </div>
+                </div>
+                <div class="step">
+                  <div class="step-number">2</div>
+                  <div class="step-content">
+                    <strong>Complete setup</strong>
+                    <p class="text-muted">Create your profile and start exploring</p>
+                  </div>
+                </div>
+                <div class="step">
+                  <div class="step-number">3</div>
+                  <div class="step-content">
+                    <strong>Join the community</strong>
+                    <p class="text-muted">Create posts, connect with students, earn badges</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="details">
+                <strong>📧 Can't find this email?</strong> Check your spam or junk folder. Sometimes our emails end up there by mistake. You can add us to your contacts to prevent this in the future.
+              </div>
             </div>
-            
-            <p style="font-size: 14px; color: #999;">This link will expire in 24 hours.</p>
-            <p style="font-size: 14px; color: #999;">If you didn't create this account, please ignore this email.</p>
-            
             <div class="footer">
-              <p>© 2026 LearnLoop by Cool Shot Systems. All rights reserved.</p>
+              <p><strong>LearnLoop</strong> • A social learning platform by Cool Shot Systems</p>
+              <p><a href="${verificationLink}">Can't click the button? Copy this link:</a></p>
+              <p style="word-break: break-all; font-size: 11px; color: #9ca3af;">${verificationLink}</p>
+              <p style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
+                Questions? Visit our <a href="https://learnloop.app/help">Help Center</a>
+              </p>
             </div>
           </div>
         </div>
@@ -107,11 +223,13 @@ export async function sendVerificationEmail(
     </html>
   `
 
+  const plainText = `Verify Your Email\n\n${verificationCode}\n\nOr visit this link: ${verificationLink}\n\nThis code expires in 24 hours.\n\nIf you didn't sign up for LearnLoop, please ignore this email.\n\n© 2026 LearnLoop by Cool Shot Systems`
+
   return sendEmail({
     to: email,
     subject: 'Verify Your LearnLoop Email Address',
     html,
-    text: `Verify your email with code: ${verificationCode}\n\nOr visit: ${verificationLink}`,
+    text: plainText,
   })
 }
 
