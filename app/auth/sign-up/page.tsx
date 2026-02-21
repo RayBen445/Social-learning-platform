@@ -52,9 +52,6 @@ export default function SignUpPage() {
     }
 
     try {
-      const verificationCode = Math.random().toString(36).substring(2, 8).toUpperCase()
-      const verificationLink = `${window.location.origin}/auth/callback?code=${verificationCode}`
-
       const { error: signUpError, data } = await supabase.auth.signUp({
         email,
         password,
@@ -69,6 +66,10 @@ export default function SignUpPage() {
         },
       })
       if (signUpError) throw signUpError
+
+      // Verification link from Supabase
+      const verificationLink = `${window.location.origin}/auth/callback?email=${encodeURIComponent(email)}&type=email`
+      const verificationCode = Math.random().toString(36).substring(2, 8).toUpperCase()
 
       // Send verification email via Resend
       await handleSignUpEmail(email, verificationLink, verificationCode)
