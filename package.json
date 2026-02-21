@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "setup-credentials": "node scripts/setup-admin-bot.js",
+    "seed:admin-bot": "psql $DATABASE_URL -f scripts/008_seed_admin_bot_users.sql"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
