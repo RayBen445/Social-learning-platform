@@ -4,10 +4,10 @@ import { createClient } from '@/lib/supabase/client'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 
-export default function SearchPage() {
+function SearchContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const query = searchParams.get('q') || ''
@@ -281,5 +281,31 @@ export default function SearchPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+function SearchLoadingFallback() {
+  return (
+    <div className="flex min-h-screen w-full flex-col p-4 md:p-10">
+      <div className="max-w-4xl mx-auto w-full space-y-6">
+        <div className="space-y-2">
+          <div className="h-8 bg-gray-200 rounded dark:bg-gray-800 animate-pulse w-1/3" />
+        </div>
+        <div className="h-10 bg-gray-200 rounded dark:bg-gray-800 animate-pulse" />
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-20 bg-gray-200 rounded dark:bg-gray-800 animate-pulse" />
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<SearchLoadingFallback />}>
+      <SearchContent />
+    </Suspense>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const searchParams = useSearchParams()
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
   const [message, setMessage] = useState('')
@@ -97,5 +97,32 @@ export default function VerifyEmailPage() {
         </Card>
       </div>
     </div>
+  )
+}
+
+function LoadingFallback() {
+  return (
+    <div className="flex min-h-screen w-full items-center justify-center p-4 md:p-10">
+      <div className="w-full max-w-md">
+        <Card>
+          <CardHeader className="text-center">
+            <div className="h-6 bg-gray-200 rounded dark:bg-gray-800 animate-pulse" />
+            <div className="h-4 bg-gray-200 rounded dark:bg-gray-800 animate-pulse mt-2" />
+          </CardHeader>
+          <CardContent className="flex flex-col items-center space-y-6">
+            <div className="h-12 w-12 bg-gray-200 rounded-full dark:bg-gray-800 animate-pulse" />
+            <div className="h-4 bg-gray-200 rounded dark:bg-gray-800 animate-pulse w-full" />
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <VerifyEmailContent />
+    </Suspense>
   )
 }
