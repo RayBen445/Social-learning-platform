@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 import { useState } from 'react'
+import { handlePasswordResetEmail } from '@/app/actions/send-emails'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
@@ -33,10 +34,16 @@ export default function ForgotPasswordPage() {
     }
 
     try {
+      const resetLink = `${window.location.origin}/auth/reset-password`
+
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
+        redirectTo: resetLink,
       })
       if (resetError) throw resetError
+
+      // Send password reset email via Resend
+      await handlePasswordResetEmail(email, resetLink)
+
       setSuccess(true)
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'Failed to send reset email')

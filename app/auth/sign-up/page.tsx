@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { handleSignUpEmail } from '@/app/actions/send-emails'
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('')
@@ -51,7 +52,10 @@ export default function SignUpPage() {
     }
 
     try {
-      const { error: signUpError } = await supabase.auth.signUp({
+      const verificationCode = Math.random().toString(36).substring(2, 8).toUpperCase()
+      const verificationLink = `${window.location.origin}/auth/callback?code=${verificationCode}`
+
+      const { error: signUpError, data } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -65,6 +69,10 @@ export default function SignUpPage() {
         },
       })
       if (signUpError) throw signUpError
+
+      // Send verification email via Resend
+      await handleSignUpEmail(email, verificationLink, verificationCode)
+
       router.push('/auth/sign-up-success')
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An error occurred during sign up')
