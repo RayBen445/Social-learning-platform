@@ -17,6 +17,7 @@ import { useState } from 'react'
 import { handleSignUpEmail } from '@/app/actions/send-emails'
 import { PasswordInput } from '@/components/auth/password-input'
 import { PasswordStrengthIndicator } from '@/components/auth/password-strength-indicator'
+import { Logo } from '@/components/logo'
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('')
@@ -102,11 +103,16 @@ export default function SignUpPage() {
       <div className="w-full max-w-md">
         <div className="space-y-6">
           {/* Header */}
-          <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold">Join LearnLoop</h1>
-            <p className="text-muted-foreground">
-              Start learning and sharing knowledge with our community
-            </p>
+          <div className="text-center space-y-4">
+            <div className="flex justify-center">
+              <Logo size="lg" showText={false} />
+            </div>
+            <div className="space-y-2">
+              <h1 className="text-3xl font-bold">Join LearnLoop</h1>
+              <p className="text-muted-foreground">
+                Start learning and sharing knowledge with our community
+              </p>
+            </div>
           </div>
 
           <Card>

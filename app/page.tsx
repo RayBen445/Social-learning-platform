@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowRight, Zap, Users, Trophy, MessageSquare, Search, BookOpen } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { Logo } from '@/components/logo'
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -24,10 +25,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
       {/* Navigation */}
       <nav className="flex items-center justify-between border-b px-6 py-4 backdrop-blur-sm">
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-primary/60" />
-          <span className="text-xl font-bold">LearnLoop</span>
-        </div>
+        <Logo href="/" size="sm" showText={true} />
         <div className="hidden md:flex gap-8">
           <Link href="#features" className="text-sm hover:text-primary">
             Features
