@@ -4,6 +4,33 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import MarkNotificationAsReadButton from '@/components/notifications/mark-as-read-button'
+import { AppNavbar } from '@/components/app-navbar'
+import { Bell, MessageCircle, Heart, UserPlus, Share2 } from 'lucide-react'
+import { Suspense } from 'react'
+
+function NotificationsLoading() {
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="h-16 border-b" />
+      <div className="container mx-auto max-w-3xl py-10 px-4">
+        <div className="space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 bg-muted animate-pulse rounded" />
+            <div className="space-y-2">
+              <div className="h-8 w-32 bg-muted animate-pulse rounded" />
+              <div className="h-4 w-64 bg-muted animate-pulse rounded" />
+            </div>
+          </div>
+          <div className="space-y-3">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="h-20 bg-muted animate-pulse rounded-lg border-2" />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default async function NotificationsPage() {
   const supabase = await createClient()
@@ -15,6 +42,13 @@ export default async function NotificationsPage() {
   if (!user) {
     redirect('/auth/login')
   }
+
+  // Fetch user profile
+  const { data: userProfile } = await supabase
+    .from('profiles')
+    .select('username, full_name, avatar_url')
+    .eq('id', user.id)
+    .single()
 
   // Fetch notifications
   const { data: notifications, error: notificationsError } = await supabase
@@ -50,6 +84,21 @@ export default async function NotificationsPage() {
     }
   }
 
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'comment':
+        return <MessageCircle className="h-5 w-5 text-blue-500" />
+      case 'vote':
+        return <Heart className="h-5 w-5 text-red-500" />
+      case 'follow':
+        return <UserPlus className="h-5 w-5 text-green-500" />
+      case 'reshare':
+        return <Share2 className="h-5 w-5 text-purple-500" />
+      default:
+        return <Bell className="h-5 w-5 text-primary" />
+    }
+  }
+
   const getNotificationLink = (notification: any) => {
     if (notification.post_id) {
       return `/posts/${notification.post_id}`
@@ -60,15 +109,28 @@ export default async function NotificationsPage() {
   }
 
   return (
+    <Suspense fallback={<NotificationsLoading />}>
+      <NotificationsContent userProfile={userProfile} notifications={notifications} />
+    </Suspense>
+  )
+}
+
+async function NotificationsContent({ userProfile, notifications }: { userProfile: any; notifications: any }) {
+  return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto max-w-2xl py-10">
+      <AppNavbar user={userProfile} />
+      
+      <div className="container mx-auto max-w-3xl py-10 px-4">
         <div className="space-y-6">
           {/* Header */}
-          <div>
-            <h1 className="text-3xl font-bold">Notifications</h1>
-            <p className="text-muted-foreground">
-              Stay updated with what's happening in your community
-            </p>
+          <div className="flex items-center gap-3">
+            <Bell className="h-8 w-8 text-primary" />
+            <div>
+              <h1 className="text-3xl font-bold">Notifications</h1>
+              <p className="text-muted-foreground">
+                Stay updated with what's happening in your community
+              </p>
+            </div>
           </div>
 
           {/* Notifications List */}

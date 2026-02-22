@@ -18,6 +18,7 @@ import { handleSignUpEmail } from '@/app/actions/send-emails'
 import { PasswordInput } from '@/components/auth/password-input'
 import { PasswordStrengthIndicator } from '@/components/auth/password-strength-indicator'
 import { Logo } from '@/components/logo'
+import { Loader2 } from 'lucide-react'
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('')
@@ -203,7 +204,14 @@ export default function SignUpPage() {
                   )}
 
                   <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? 'Creating Account...' : 'Sign Up'}
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating Account...
+                      </>
+                    ) : (
+                      'Sign Up'
+                    )}
                   </Button>
                 </div>
 

@@ -15,6 +15,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Logo } from '@/components/logo'
+import { Loader2 } from 'lucide-react'
+import { PasswordInput } from '@/components/auth/password-input'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -99,25 +101,33 @@ export default function LoginPage() {
                         Forgot password?
                       </Link>
                     </div>
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="••••••••"
-                      required
+                    <PasswordInput
+                      placeholder="Enter your password"
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      autoComplete="current-password"
+                      onChange={setPassword}
+                      required
                     />
                   </div>
 
                   {error && (
-                    <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+                    <div className="rounded-lg bg-red-50 dark:bg-red-950/20 p-3 text-sm text-red-600 dark:text-red-400">
                       {error}
                     </div>
                   )}
 
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? 'Logging in...' : 'Log In'}
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Signing in...
+                      </>
+                    ) : (
+                      'Sign In'
+                    )}
                   </Button>
                 </div>
 
