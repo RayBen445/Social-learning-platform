@@ -15,6 +15,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { handleSignUpEmail } from '@/app/actions/send-emails'
+import { PasswordInput } from '@/components/auth/password-input'
+import { PasswordStrengthIndicator } from '@/components/auth/password-strength-indicator'
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('')
@@ -47,6 +49,15 @@ export default function SignUpPage() {
 
     if (password.length < 8) {
       setError('Password must be at least 8 characters')
+      setIsLoading(false)
+      return
+    }
+
+    // Check password strength
+    const { checkPasswordStrength } = await import('@/lib/password-strength')
+    const { strength } = checkPasswordStrength(password)
+    if (strength === 'weak' || strength === 'fair') {
+      setError('Password is not strong enough. Please use a stronger password.')
       setIsLoading(false)
       return
     }
@@ -158,17 +169,26 @@ export default function SignUpPage() {
                     </p>
                   </div>
 
-                  <div className="grid gap-2">
-                    <Label htmlFor="repeatPassword">Confirm Password</Label>
-                    <Input
-                      id="repeatPassword"
-                      type="password"
-                      placeholder="••••••••"
-                      required
-                      value={repeatPassword}
-                      onChange={(e) => setRepeatPassword(e.target.value)}
-                    />
-                  </div>
+            <div className="grid gap-2">
+              <PasswordInput
+                label="Password"
+                placeholder="Enter a strong password"
+                value={password}
+                onChange={setPassword}
+                required
+              />
+              <PasswordStrengthIndicator password={password} />
+            </div>
+            <div className="grid gap-2">
+              <PasswordInput
+                label="Confirm Password"
+                placeholder="Repeat your password"
+                value={repeatPassword}
+                onChange={setRepeatPassword}
+                required
+                error={password !== repeatPassword && repeatPassword ? 'Passwords do not match' : undefined}
+              />
+            </div>
 
                   {error && (
                     <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
