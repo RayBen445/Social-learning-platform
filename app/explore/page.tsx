@@ -1,9 +1,25 @@
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'
+import { AppNavbar } from '@/components/app-navbar'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Flame, Clock, Users } from 'lucide-react'
 
 export default async function ExplorePage() {
   const supabase = await createClient()
+
+  // Get current user
+  const {
+    data: { user: currentUser },
+  } = await supabase.auth.getUser()
+
+  const { data: currentUserProfile } = currentUser
+    ? await supabase
+        .from('profiles')
+        .select('username, full_name, avatar_url')
+        .eq('id', currentUser.id)
+        .single()
+    : { data: null }
 
   // Fetch trending posts
   const { data: trendingPosts } = await supabase
@@ -39,25 +55,28 @@ export default async function ExplorePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto py-10">
-        <div className="space-y-12">
-          {/* Header */}
-          <div className="space-y-2">
-            <h1 className="text-4xl font-bold">Explore LearnLoop</h1>
-            <p className="text-muted-foreground">
-              Discover interesting posts, topics, and people
-            </p>
-          </div>
+      <AppNavbar user={currentUserProfile} />
+      
+      <div className="container mx-auto py-10 px-4">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold mb-2">Explore</h1>
+          <p className="text-muted-foreground">
+            Discover interesting posts, topics, and people
+          </p>
+        </div>
 
-          {/* Popular Topics */}
-          <section className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Popular Topics</h2>
-              <Link href="/topics" className="text-sm text-primary hover:underline">
-                View all
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-3 space-y-8">
+
+            {/* Trending Posts */}
+            <section className="space-y-4">
+              <div className="flex items-center gap-2 mb-4">
+                <Flame className="h-5 w-5 text-orange-500" />
+                <h2 className="text-2xl font-bold">Trending This Week</h2>
+              </div>
+              <div className="space-y-3">
               {popularTopics && popularTopics.length > 0 ? (
                 popularTopics.map((topic: any) => (
                   <Link key={topic.id} href={`/topics/${topic.slug}`}>
@@ -79,10 +98,13 @@ export default async function ExplorePage() {
             </div>
           </section>
 
-          {/* Trending Posts */}
-          <section className="space-y-4">
-            <h2 className="text-2xl font-bold">Trending This Week</h2>
-            <div className="space-y-3">
+            {/* Recent Posts */}
+            <section className="space-y-4">
+              <div className="flex items-center gap-2 mb-4">
+                <Clock className="h-5 w-5 text-blue-500" />
+                <h2 className="text-2xl font-bold">Recent Posts</h2>
+              </div>
+              <div className="space-y-3">
               {trendingPosts && trendingPosts.length > 0 ? (
                 trendingPosts.map((post: any) => (
                   <Link key={post.id} href={`/posts/${post.id}`}>
@@ -170,39 +192,66 @@ export default async function ExplorePage() {
             </div>
           </section>
 
-          {/* Recent Posts */}
-          <section className="space-y-4">
-            <h2 className="text-2xl font-bold">Recent Posts</h2>
-            <div className="space-y-3">
-              {recentPosts && recentPosts.length > 0 ? (
-                recentPosts.map((post: any) => (
-                  <Link key={post.id} href={`/posts/${post.id}`}>
-                    <Card className="hover:bg-muted/50 cursor-pointer transition">
-                      <CardContent className="pt-6">
-                        <h3 className="font-bold mb-1">{post.title}</h3>
-                        {post.excerpt && (
-                          <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
-                            {post.excerpt}
-                          </p>
-                        )}
-                        <div className="flex gap-4 text-xs text-muted-foreground">
-                          <span>By {post.user?.full_name || post.user?.username}</span>
-                          <span>👍 {post.upvote_count}</span>
-                          <span>{new Date(post.created_at).toLocaleDateString()}</span>
+          </div>
+
+          {/* Sidebar */}
+          <aside className="lg:col-span-1 space-y-6">
+            {/* Popular Topics */}
+            {/* Recommended Users Sidebar */}
+            <section className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-green-500" />
+                <h3 className="text-lg font-bold">People to Follow</h3>
+              </div>
+              <div className="space-y-3">
+                {recommendedUsers && recommendedUsers.length > 0 ? (
+                  recommendedUsers.slice(0, 5).map((user: any) => (
+                    <Link key={user.id} href={`/profile/${user.username}`}>
+                      <Card className="hover:bg-muted/50 cursor-pointer transition">
+                        <CardContent className="p-3">
+                          <div className="flex gap-3">
+                            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex-shrink-0 flex items-center justify-center text-white font-bold">
+                              {user.username.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="flex-grow min-w-0">
+                              <p className="font-semibold text-sm truncate">{user.full_name || user.username}</p>
+                              <p className="text-xs text-muted-foreground truncate">@{user.username}</p>
+                              <p className="text-xs text-muted-foreground mt-1">{user.total_followers} followers</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">No recommendations yet</p>
+                )}
+              </div>
+            </section>
+
+            {/* Popular Topics */}
+            <section className="space-y-4">
+              <h3 className="text-lg font-bold">Popular Topics</h3>
+              <div className="space-y-2">
+                {popularTopics && popularTopics.length > 0 ? (
+                  popularTopics.slice(0, 8).map((topic: any) => (
+                    <Link key={topic.id} href={`/topics/${topic.slug}`}>
+                      <Card className="hover:bg-muted/50 cursor-pointer transition p-3">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-sm">{topic.name}</span>
+                          <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                            {topic.post_count}
+                          </span>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))
-              ) : (
-                <Card>
-                  <CardContent className="pt-6 text-center text-muted-foreground">
-                    No recent posts
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          </section>
+                      </Card>
+                    </Link>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">No topics yet</p>
+                )}
+              </div>
+            </section>
+          </aside>
         </div>
       </div>
     </div>
