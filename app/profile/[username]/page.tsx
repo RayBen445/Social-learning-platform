@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'
 import { Suspense } from 'react'
+import { VerifiedBadge } from '@/components/users/verified-badge'
 
 // Profile page loading skeleton
 function ProfileLoading() {
@@ -127,9 +128,7 @@ async function ProfileContent({ params }: ProfilePageProps) {
                   <div className="flex items-center gap-2 mb-2">
                     <h1 className="text-3xl font-bold">{profile.full_name || profile.username}</h1>
                     {profile.is_verified && (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
-                        ✓ Verified
-                      </span>
+                      <VerifiedBadge verificationType={profile.verification_type} />
                     )}
                   </div>
                   <p className="text-muted-foreground mb-2">@{profile.username}</p>

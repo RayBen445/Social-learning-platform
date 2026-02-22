@@ -7,6 +7,7 @@ import MarkNotificationAsReadButton from '@/components/notifications/mark-as-rea
 import { AppNavbar } from '@/components/app-navbar'
 import { Bell, MessageCircle, Heart, UserPlus, Share2 } from 'lucide-react'
 import { Suspense } from 'react'
+import { VerifiedBadge } from '@/components/users/verified-badge'
 
 function NotificationsLoading() {
   return (
@@ -165,7 +166,7 @@ async function NotificationsContent({ userProfile, notifications }: { userProfil
                               {notification.actor?.full_name || notification.actor?.username}
                             </span>
                             {notification.actor?.is_verified && (
-                              <span className="text-blue-600 text-xs">✓ Verified</span>
+                              <VerifiedBadge verificationType={notification.actor.verification_type} size="xs" />
                             )}
                             <span className="text-muted-foreground">
                               {getNotificationMessage(notification)}

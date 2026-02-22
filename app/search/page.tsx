@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Loader2 } from 'lucide-react'
+import { VerifiedBadge } from '@/components/users/verified-badge'
 
 // Search page loading skeleton
 function SearchLoading() {
@@ -412,7 +413,7 @@ function SearchContent() {
                                     {user.full_name || user.username}
                                   </span>
                                   {user.is_verified && (
-                                    <span className="text-blue-600 text-sm">✓</span>
+                                    <VerifiedBadge verificationType={user.verification_type} size="xs" />
                                   )}
                                 </div>
                                 <p className="text-xs text-muted-foreground mb-1">
