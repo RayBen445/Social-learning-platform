@@ -4,6 +4,73 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { Logo } from '@/components/logo'
 import { Home, Compass, Bell, Mail, Settings, LogOut } from 'lucide-react'
+import { Suspense } from 'react'
+
+// Loading skeleton component
+function DashboardLoading() {
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Navbar skeleton */}
+      <div className="border-b">
+        <div className="container mx-auto flex items-center justify-between px-4 py-4">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-muted animate-pulse" />
+            <div className="h-6 w-24 bg-muted animate-pulse rounded" />
+          </div>
+          <div className="hidden md:flex items-center gap-8">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-5 w-16 bg-muted animate-pulse rounded" />
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-9 w-20 bg-muted animate-pulse rounded" />
+            <div className="h-8 w-8 bg-muted animate-pulse rounded-full" />
+          </div>
+        </div>
+      </div>
+
+      {/* Content skeleton */}
+      <div className="container mx-auto py-12 px-4">
+        <div className="max-w-4xl space-y-6">
+          {/* Welcome section skeleton */}
+          <div className="space-y-2">
+            <div className="h-10 w-56 bg-muted animate-pulse rounded" />
+            <div className="h-5 w-80 bg-muted animate-pulse rounded" />
+          </div>
+
+          {/* Buttons skeleton */}
+          <div className="flex gap-4">
+            <div className="h-11 w-28 bg-muted animate-pulse rounded" />
+            <div className="h-11 w-32 bg-muted animate-pulse rounded" />
+          </div>
+
+          {/* Stats skeleton */}
+          <div className="grid grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="rounded-lg border bg-card p-4 space-y-2">
+                <div className="h-8 w-12 bg-muted animate-pulse rounded" />
+                <div className="h-4 w-16 bg-muted animate-pulse rounded" />
+              </div>
+            ))}
+          </div>
+
+          {/* Get started section skeleton */}
+          <div className="rounded-lg border bg-card p-8 space-y-4">
+            <div className="h-8 w-32 bg-muted animate-pulse rounded" />
+            <div className="grid md:grid-cols-2 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="p-4 border rounded space-y-2">
+                  <div className="h-6 w-40 bg-muted animate-pulse rounded" />
+                  <div className="h-4 w-full bg-muted animate-pulse rounded" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -23,6 +90,14 @@ export default async function DashboardPage() {
     .eq('id', user.id)
     .single()
 
+  return (
+    <Suspense fallback={<DashboardLoading />}>
+      <DashboardContent profile={profile} />
+    </Suspense>
+  )
+}
+
+async function DashboardContent({ profile }: { profile: any }) {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation Bar */}

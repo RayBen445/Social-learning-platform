@@ -15,6 +15,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Logo } from '@/components/logo'
+import { Loader2 } from 'lucide-react'
+import { PasswordInput } from '@/components/auth/password-input'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')

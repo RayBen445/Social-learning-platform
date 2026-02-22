@@ -425,13 +425,14 @@ function SearchContent() {
                 </div>
               )}
             </>
-          ) : (
-            <Card>
-              <CardContent className="pt-6 text-center text-muted-foreground">
-                <p>Enter a search term to get started</p>
-              </CardContent>
-            </Card>
-          )}
+            ) : (
+              <Card>
+                <CardContent className="pt-6 text-center text-muted-foreground">
+                  <p>Enter a search term to get started</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </div>
       </div>
     </div>

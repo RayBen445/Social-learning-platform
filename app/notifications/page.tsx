@@ -6,6 +6,31 @@ import Link from 'next/link'
 import MarkNotificationAsReadButton from '@/components/notifications/mark-as-read-button'
 import { AppNavbar } from '@/components/app-navbar'
 import { Bell, MessageCircle, Heart, UserPlus, Share2 } from 'lucide-react'
+import { Suspense } from 'react'
+
+function NotificationsLoading() {
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="h-16 border-b" />
+      <div className="container mx-auto max-w-3xl py-10 px-4">
+        <div className="space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 bg-muted animate-pulse rounded" />
+            <div className="space-y-2">
+              <div className="h-8 w-32 bg-muted animate-pulse rounded" />
+              <div className="h-4 w-64 bg-muted animate-pulse rounded" />
+            </div>
+          </div>
+          <div className="space-y-3">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="h-20 bg-muted animate-pulse rounded-lg border-2" />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default async function NotificationsPage() {
   const supabase = await createClient()
@@ -83,6 +108,14 @@ export default async function NotificationsPage() {
     return '#'
   }
 
+  return (
+    <Suspense fallback={<NotificationsLoading />}>
+      <NotificationsContent userProfile={userProfile} notifications={notifications} />
+    </Suspense>
+  )
+}
+
+async function NotificationsContent({ userProfile, notifications }: { userProfile: any; notifications: any }) {
   return (
     <div className="min-h-screen bg-background">
       <AppNavbar user={userProfile} />

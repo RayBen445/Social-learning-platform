@@ -40,21 +40,22 @@ export function PasswordInput({
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className={error ? 'pr-10 border-red-500' : 'pr-10'}
+          className={`pr-12 ${error ? 'border-red-500' : ''}`}
           required={required}
         />
         <Button
           type="button"
           variant="ghost"
           size="sm"
-          className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+          className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-muted rounded-full transition-colors"
           onClick={() => setShowPassword(!showPassword)}
           tabIndex={-1}
+          title={showPassword ? 'Hide password' : 'Show password'}
         >
           {showPassword ? (
-            <EyeOff className="h-4 w-4 text-muted-foreground" />
+            <EyeOff className="h-5 w-5 text-primary hover:text-primary/80" />
           ) : (
-            <Eye className="h-4 w-4 text-muted-foreground" />
+            <Eye className="h-5 w-5 text-muted-foreground hover:text-primary" />
           )}
         </Button>
       </div>

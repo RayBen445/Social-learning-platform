@@ -4,6 +4,41 @@ import Link from 'next/link'
 import { AppNavbar } from '@/components/app-navbar'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Flame, Clock, Users } from 'lucide-react'
+import { Suspense } from 'react'
+
+// Loading skeleton for explore page
+function ExploreLoading() {
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="h-16 border-b" />
+      <div className="container mx-auto py-10 px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <div className="lg:col-span-3 space-y-8">
+            <div className="space-y-2">
+              <div className="h-10 w-32 bg-muted animate-pulse rounded" />
+              <div className="h-5 w-64 bg-muted animate-pulse rounded" />
+            </div>
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-24 bg-muted animate-pulse rounded-lg" />
+              ))}
+            </div>
+          </div>
+          <aside className="lg:col-span-1 space-y-6">
+            {[1, 2].map((i) => (
+              <div key={i} className="space-y-3">
+                <div className="h-6 w-24 bg-muted animate-pulse rounded" />
+                {[1, 2, 3].map((j) => (
+                  <div key={j} className="h-12 bg-muted animate-pulse rounded" />
+                ))}
+              </div>
+            ))}
+          </aside>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default async function ExplorePage() {
   const supabase = await createClient()
@@ -54,8 +89,46 @@ export default async function ExplorePage() {
     .limit(6)
 
   return (
+    <Suspense fallback={<ExploreLoading />}>
+      <ExploreContent user={currentUserProfile} />
+    </Suspense>
+  )
+}
+
+async function ExploreContent({ user }: { user: any }) {
+  const supabase = await createClient()
+
+  // Fetch all data
+  const { data: trendingPosts } = await supabase
+    .from('posts')
+    .select('id, title, excerpt, upvote_count, comment_count, created_at, user:profiles(username, full_name)')
+    .eq('is_published', true)
+    .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+    .order('upvote_count', { ascending: false })
+    .limit(10)
+
+  const { data: popularTopics } = await supabase
+    .from('topics')
+    .select('id, name, slug, post_count')
+    .order('post_count', { ascending: false })
+    .limit(12)
+
+  const { data: recentPosts } = await supabase
+    .from('posts')
+    .select('id, title, excerpt, upvote_count, created_at, user:profiles(username, full_name)')
+    .eq('is_published', true)
+    .order('created_at', { ascending: false })
+    .limit(10)
+
+  const { data: recommendedUsers } = await supabase
+    .from('profiles')
+    .select('id, username, full_name, avatar_url, bio, is_verified, total_followers')
+    .order('total_followers', { ascending: false })
+    .limit(5)
+
+  return (
     <div className="min-h-screen bg-background">
-      <AppNavbar user={currentUserProfile} />
+      <AppNavbar user={user} />
       
       <div className="container mx-auto py-10 px-4">
         {/* Header */}

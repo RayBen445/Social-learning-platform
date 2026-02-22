@@ -253,76 +253,77 @@ export default function ProfileSettingsPage() {
             </CardContent>
           </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Edit Profile</CardTitle>
-            <CardDescription>
-              Update your profile details
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSaveProfile} className="space-y-6">
-              <div className="grid gap-4 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Edit Profile</CardTitle>
+              <CardDescription>
+                Update your profile details
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSaveProfile} className="space-y-6">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="grid gap-2">
+                    <Label htmlFor="fullName">Full Name</Label>
+                    <Input
+                      id="fullName"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="location">Location</Label>
+                    <Input
+                      id="location"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      placeholder="e.g., San Francisco, CA"
+                    />
+                  </div>
+                </div>
+
                 <div className="grid gap-2">
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <Input
-                    id="fullName"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
+                  <Label htmlFor="bio">Bio</Label>
+                  <Textarea
+                    id="bio"
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
+                    placeholder="Tell us about yourself..."
+                    rows={4}
                   />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="location">Location</Label>
+                  <Label htmlFor="websiteUrl">Website</Label>
                   <Input
-                    id="location"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    placeholder="e.g., San Francisco, CA"
+                    id="websiteUrl"
+                    type="url"
+                    value={websiteUrl}
+                    onChange={(e) => setWebsiteUrl(e.target.value)}
+                    placeholder="https://example.com"
                   />
                 </div>
-              </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="bio">Bio</Label>
-                <Textarea
-                  id="bio"
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  placeholder="Tell us about yourself..."
-                  rows={4}
-                />
-              </div>
+                {error && (
+                  <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+                    {error}
+                  </div>
+                )}
 
-              <div className="grid gap-2">
-                <Label htmlFor="websiteUrl">Website</Label>
-                <Input
-                  id="websiteUrl"
-                  type="url"
-                  value={websiteUrl}
-                  onChange={(e) => setWebsiteUrl(e.target.value)}
-                  placeholder="https://example.com"
-                />
-              </div>
+                {success && (
+                  <div className="rounded-md bg-green-100 p-3 text-sm text-green-700">
+                    Profile updated successfully!
+                  </div>
+                )}
 
-              {error && (
-                <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-                  {error}
-                </div>
-              )}
-
-              {success && (
-                <div className="rounded-md bg-green-100 p-3 text-sm text-green-700">
-                  Profile updated successfully!
-                </div>
-              )}
-
-              <Button type="submit" disabled={isSaving}>
-                {isSaving ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+                <Button type="submit" disabled={isSaving}>
+                  {isSaving ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   )

@@ -4,6 +4,31 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'
 import { AppNavbar } from '@/components/app-navbar'
 import { Mail, Clock } from 'lucide-react'
+import { Suspense } from 'react'
+
+function MessagesLoading() {
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="h-16 border-b" />
+      <div className="container mx-auto max-w-4xl py-10 px-4">
+        <div className="space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 bg-muted animate-pulse rounded" />
+            <div className="space-y-2">
+              <div className="h-8 w-32 bg-muted animate-pulse rounded" />
+              <div className="h-4 w-64 bg-muted animate-pulse rounded" />
+            </div>
+          </div>
+          <div className="space-y-3">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-20 bg-muted animate-pulse rounded-lg border-2" />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default async function MessagesPage() {
   const supabase = await createClient()
@@ -47,6 +72,14 @@ export default async function MessagesPage() {
     }
   }
 
+  return (
+    <Suspense fallback={<MessagesLoading />}>
+      <MessagesContent userProfile={userProfile} conversations={conversations} />
+    </Suspense>
+  )
+}
+
+async function MessagesContent({ userProfile, conversations }: { userProfile: any; conversations: any }) {
   return (
     <div className="min-h-screen bg-background">
       <AppNavbar user={userProfile} />
