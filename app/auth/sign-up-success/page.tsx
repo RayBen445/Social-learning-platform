@@ -6,9 +6,9 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import Link from 'next/link'
 import { MailCheck, AlertCircle, Clock, LogIn } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 
-export default function SignUpSuccessPage() {
+function SignUpSuccessContent() {
   const searchParams = useSearchParams()
   const email = searchParams.get('email') || 'your email'
   const [resendTime, setResendTime] = useState(0)
@@ -122,5 +122,38 @@ export default function SignUpSuccessPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+function LoadingFallback() {
+  return (
+    <div className="flex min-h-screen w-full items-center justify-center p-4 md:p-10">
+      <div className="w-full max-w-md">
+        <div className="space-y-6">
+          <div className="flex justify-center">
+            <div className="rounded-full bg-gray-200 p-3 dark:bg-gray-800 animate-pulse">
+              <div className="h-8 w-8" />
+            </div>
+          </div>
+          <Card>
+            <CardHeader className="text-center">
+              <div className="h-8 bg-gray-200 rounded dark:bg-gray-800 animate-pulse" />
+              <div className="h-4 bg-gray-200 rounded dark:bg-gray-800 animate-pulse mt-2" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="h-12 bg-gray-200 rounded dark:bg-gray-800 animate-pulse" />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function SignUpSuccessPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <SignUpSuccessContent />
+    </Suspense>
   )
 }

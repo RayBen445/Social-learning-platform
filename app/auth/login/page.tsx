@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { Logo } from '@/components/logo'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -53,11 +54,16 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="space-y-6">
           {/* Header */}
-          <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold">Welcome Back</h1>
-            <p className="text-muted-foreground">
-              Log in to continue your learning journey
-            </p>
+          <div className="text-center space-y-4">
+            <div className="flex justify-center">
+              <Logo size="lg" showText={false} />
+            </div>
+            <div className="space-y-2">
+              <h1 className="text-3xl font-bold">Welcome Back</h1>
+              <p className="text-muted-foreground">
+                Log in to continue your learning journey
+              </p>
+            </div>
           </div>
 
           <Card>
