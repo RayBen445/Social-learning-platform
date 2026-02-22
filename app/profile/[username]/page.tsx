@@ -3,6 +3,52 @@ import { notFound } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'
+import { Suspense } from 'react'
+
+// Profile page loading skeleton
+function ProfileLoading() {
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Banner skeleton */}
+      <div className="h-32 bg-muted animate-pulse" />
+
+      <div className="container mx-auto px-4 pb-12">
+        <div className="max-w-4xl">
+          {/* Profile Header skeleton */}
+          <div className="flex flex-col md:flex-row gap-6 -mt-16 mb-8 relative z-10">
+            <div className="h-32 w-32 rounded-lg bg-muted animate-pulse" />
+            <div className="flex-grow space-y-3 pt-4">
+              <div className="h-8 w-40 bg-muted animate-pulse rounded" />
+              <div className="h-4 w-32 bg-muted animate-pulse rounded" />
+              <div className="h-10 w-24 bg-muted animate-pulse rounded" />
+            </div>
+          </div>
+
+          {/* Bio and stats skeleton */}
+          <div className="grid grid-cols-3 gap-4 mb-8">
+            {[1, 2, 3].map((i) => (
+              <Card key={i}>
+                <CardContent className="pt-6">
+                  <div className="space-y-2">
+                    <div className="h-8 w-12 bg-muted animate-pulse rounded" />
+                    <div className="h-4 w-16 bg-muted animate-pulse rounded" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Posts skeleton */}
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-32 bg-muted animate-pulse rounded-lg border-2" />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 interface ProfilePageProps {
   params: Promise<{
@@ -11,6 +57,14 @@ interface ProfilePageProps {
 }
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
+  return (
+    <Suspense fallback={<ProfileLoading />}>
+      <ProfileContent params={params} />
+    </Suspense>
+  )
+}
+
+async function ProfileContent({ params }: ProfilePageProps) {
   const { username } = await params
   const supabase = await createClient()
 

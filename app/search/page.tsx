@@ -18,6 +18,46 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Loader2 } from 'lucide-react'
+
+// Search page loading skeleton
+function SearchLoading() {
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="h-16 border-b" />
+      <div className="container mx-auto py-8 px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Sidebar skeleton */}
+          <aside className="lg:col-span-1 space-y-6">
+            <div className="space-y-3">
+              <div className="h-6 w-24 bg-muted animate-pulse rounded" />
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-8 bg-muted animate-pulse rounded" />
+              ))}
+            </div>
+            <div className="h-10 bg-muted animate-pulse rounded" />
+          </aside>
+
+          {/* Main content skeleton */}
+          <div className="lg:col-span-3 space-y-6">
+            <div className="space-y-2">
+              <div className="h-10 w-32 bg-muted animate-pulse rounded" />
+            </div>
+            <div className="flex gap-2">
+              <div className="flex-grow h-10 bg-muted animate-pulse rounded" />
+              <div className="h-10 w-24 bg-muted animate-pulse rounded" />
+            </div>
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-24 bg-muted animate-pulse rounded-lg border-2" />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 function SearchContent() {
   const searchParams = useSearchParams()
