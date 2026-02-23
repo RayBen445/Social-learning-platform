@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { Logo } from '@/components/logo'
-import { Home, Compass, Bell, Mail, Settings, LogOut } from 'lucide-react'
+import { Home, Compass, Bell, Mail, Settings, CheckCircle2, Circle } from 'lucide-react'
 import { Suspense } from 'react'
 
 // Loading skeleton component
@@ -98,6 +98,48 @@ export default async function DashboardPage() {
 }
 
 async function DashboardContent({ profile }: { profile: any }) {
+  const supabase = await createClient()
+
+  // Fetch topic subscription count for the current user
+  const { count: topicCount } = await supabase
+    .from('topic_subscriptions')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', profile?.id)
+
+  const steps = [
+    {
+      icon: '📝',
+      title: 'Create Your First Post',
+      description: 'Share your knowledge and insights with the community',
+      href: '/posts/create',
+      done: (profile?.total_posts ?? 0) > 0,
+    },
+    {
+      icon: '👥',
+      title: 'Follow Topics',
+      description: "Subscribe to topics you're interested in",
+      href: '/explore',
+      done: (topicCount ?? 0) > 0,
+    },
+    {
+      icon: '⭐',
+      title: 'Complete Your Profile',
+      description: 'Add a bio and profile picture to stand out',
+      href: '/settings',
+      done: !!(profile?.avatar_url && profile?.bio),
+    },
+    {
+      icon: '🔔',
+      title: 'Enable Notifications',
+      description: 'Stay updated with likes, comments, and mentions',
+      href: '/notifications',
+      done: false,
+    },
+  ]
+
+  const completedCount = steps.filter((s) => s.done).length
+  const progressPercent = Math.round((completedCount / steps.length) * 100)
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation Bar */}
@@ -208,32 +250,47 @@ async function DashboardContent({ profile }: { profile: any }) {
 
           {/* Get Started Section */}
           <div className="rounded-lg border bg-card p-8">
-            <h2 className="text-2xl font-bold mb-4">Get Started</h2>
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-2xl font-bold">Get Started</h2>
+              <span className="text-sm text-muted-foreground font-medium">
+                {completedCount} of {steps.length} completed
+              </span>
+            </div>
+
+            {/* Overall progress bar */}
+            <div className="w-full h-2 rounded-full bg-muted mb-6 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-primary transition-all duration-500"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+
             <div className="grid md:grid-cols-2 gap-4">
-              <div className="p-4 border rounded hover:bg-muted cursor-pointer transition">
-                <h3 className="font-bold mb-2">📝 Create Your First Post</h3>
-                <p className="text-sm text-muted-foreground">
-                  Share your knowledge and insights with the community
-                </p>
-              </div>
-              <div className="p-4 border rounded hover:bg-muted cursor-pointer transition">
-                <h3 className="font-bold mb-2">👥 Follow Topics</h3>
-                <p className="text-sm text-muted-foreground">
-                  Subscribe to topics you&apos;re interested in
-                </p>
-              </div>
-              <div className="p-4 border rounded hover:bg-muted cursor-pointer transition">
-                <h3 className="font-bold mb-2">⭐ Complete Your Profile</h3>
-                <p className="text-sm text-muted-foreground">
-                  Add a bio and profile picture to stand out
-                </p>
-              </div>
-              <div className="p-4 border rounded hover:bg-muted cursor-pointer transition">
-                <h3 className="font-bold mb-2">🔔 Enable Notifications</h3>
-                <p className="text-sm text-muted-foreground">
-                  Stay updated with likes, comments, and mentions
-                </p>
-              </div>
+              {steps.map((step, index) => (
+                <Link
+                  key={index}
+                  href={step.href}
+                  className={`flex items-start gap-4 p-4 border rounded-lg transition-colors ${
+                    step.done
+                      ? 'bg-primary/5 border-primary/30 hover:bg-primary/10'
+                      : 'hover:bg-muted'
+                  }`}
+                >
+                  <div className="mt-0.5 shrink-0">
+                    {step.done ? (
+                      <CheckCircle2 className="h-6 w-6 text-primary" />
+                    ) : (
+                      <Circle className="h-6 w-6 text-muted-foreground" />
+                    )}
+                  </div>
+                  <div>
+                    <h3 className={`font-bold mb-1 ${step.done ? 'line-through text-muted-foreground' : ''}`}>
+                      {step.icon} {step.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">{step.description}</p>
+                  </div>
+                </Link>
+              ))}
             </div>
           </div>
         </div>

@@ -162,10 +162,43 @@ export default function ProfileSettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto py-10">
-        <Card>
-          <CardContent className="pt-6">Loading...</CardContent>
-        </Card>
+      <div className="min-h-screen bg-background">
+        <div className="h-14 border-b bg-muted/40 animate-pulse" />
+        <div className="container mx-auto max-w-2xl py-10 px-4 space-y-6">
+          <div className="space-y-2">
+            <div className="h-9 w-48 bg-muted animate-pulse rounded" />
+            <div className="h-4 w-64 bg-muted animate-pulse rounded" />
+          </div>
+          <div className="rounded-lg border bg-card p-6 space-y-4">
+            <div className="h-6 w-20 bg-muted animate-pulse rounded" />
+            <div className="flex items-center gap-4">
+              <div className="h-24 w-24 rounded-full bg-muted animate-pulse flex-shrink-0" />
+              <div className="space-y-2 flex-grow">
+                <div className="h-8 w-32 bg-muted animate-pulse rounded" />
+                <div className="h-3 w-40 bg-muted animate-pulse rounded" />
+              </div>
+            </div>
+          </div>
+          <div className="rounded-lg border bg-card p-6 space-y-4">
+            <div className="h-6 w-28 bg-muted animate-pulse rounded" />
+            <div className="grid gap-4 md:grid-cols-2">
+              {[1, 2].map((i) => (
+                <div key={i} className="space-y-2">
+                  <div className="h-4 w-20 bg-muted animate-pulse rounded" />
+                  <div className="h-10 bg-muted animate-pulse rounded" />
+                </div>
+              ))}
+            </div>
+            <div className="space-y-2">
+              <div className="h-4 w-12 bg-muted animate-pulse rounded" />
+              <div className="h-24 bg-muted animate-pulse rounded" />
+            </div>
+            <div className="space-y-2">
+              <div className="h-4 w-16 bg-muted animate-pulse rounded" />
+              <div className="h-10 bg-muted animate-pulse rounded" />
+            </div>
+          </div>
+        </div>
       </div>
     )
   }
@@ -311,14 +344,12 @@ export default function ProfileSettingsPage() {
                   </div>
                 )}
 
-                {success && (
-                  <div className="rounded-md bg-green-100 p-3 text-sm text-green-700">
-                    Profile updated successfully!
-                  </div>
-                )}
-
-                <Button type="submit" disabled={isSaving}>
-                  {isSaving ? 'Saving...' : 'Save Changes'}
+                <Button type="submit" disabled={isSaving || isUploadingAvatar}>
+                  {isSaving || isUploadingAvatar ? (
+                    <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving...</>
+                  ) : (
+                    'Save Changes'
+                  )}
                 </Button>
               </form>
             </CardContent>

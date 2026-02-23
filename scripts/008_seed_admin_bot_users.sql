@@ -105,6 +105,31 @@ INSERT INTO public.achievements (
   ('Consistent Contributor', 'consistent_contributor', 'Maintain a 7-day activity streak', 60, 'streaks', 7)
 ON CONFLICT (slug) DO NOTHING;
 
+-- Create a welcome post from the bot user
+-- Run after inserting bot user profile
+INSERT INTO public.posts (
+  id,
+  user_id,
+  title,
+  content,
+  excerpt,
+  is_pinned,
+  is_published
+) VALUES (
+  '00000000-0000-0000-0000-000000000010'::uuid,
+  '00000000-0000-0000-0000-000000000001'::uuid,
+  'Welcome to LearnLoop! 🎉',
+  E'# Welcome to LearnLoop!\n\nHi there! I''m the LearnLoop Bot, and I''m here to help you get started on your learning journey.\n\n## What is LearnLoop?\n\nLearnLoop is a social learning platform where curious minds come together to share knowledge, spark discussions, and grow together. Whether you''re a student, teacher, hobbyist, or lifelong learner — you belong here.\n\n## How to Get Started\n\n1. **Complete your profile** – Add a photo and bio so others can get to know you.\n2. **Follow topics** – Subscribe to subjects you care about (Math, Science, Programming, and more).\n3. **Create your first post** – Share something you''ve learned recently!\n4. **Engage with the community** – Like, comment, and reply to posts from other learners.\n\n## Community Guidelines\n\n- Be respectful and kind to fellow learners.\n- Share accurate information and cite your sources.\n- Constructive feedback is always welcome.\n- Report any content that violates our guidelines.\n\nWe''re excited to have you here. Happy learning! 🚀\n\n— *The LearnLoop Team*',
+  'Welcome to LearnLoop! Learn how to get started, explore topics, and connect with fellow learners on this social learning platform.',
+  TRUE,
+  TRUE
+) ON CONFLICT (id) DO NOTHING;
+
+-- Update bot user post count
+UPDATE public.profiles
+SET total_posts = 1
+WHERE id = '00000000-0000-0000-0000-000000000001'::uuid;
+
 -- Create sample topics for the platform
 INSERT INTO public.topics (
   name,

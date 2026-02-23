@@ -60,7 +60,7 @@ export function AppNavbar({ user }: AppNavbarProps) {
             <Link href="/posts/create">Create</Link>
           </Button>
 
-          <Link href="/settings/profile">
+          <Link href="/settings">
             <Button size="sm" variant="ghost">
               <Settings className="h-4 w-4" />
             </Button>

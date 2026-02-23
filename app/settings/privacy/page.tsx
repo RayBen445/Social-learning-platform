@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
+import { AppNavbar } from '@/components/app-navbar'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,6 +40,8 @@ interface MutedUser {
 
 export default function PrivacySettingsPage() {
   const [currentUser, setCurrentUser] = useState<string | null>(null)
+  const [userProfile, setUserProfile] = useState<any>(null)
+  const [isPageLoading, setIsPageLoading] = useState(true)
   const [blockedUsers, setBlockedUsers] = useState<BlockedUser[]>([])
   const [mutedUsers, setMutedUsers] = useState<MutedUser[]>([])
   const [isLoadingBlocked, setIsLoadingBlocked] = useState(false)
@@ -60,6 +63,16 @@ export default function PrivacySettingsPage() {
       }
 
       setCurrentUser(user.id)
+
+      // Fetch user profile for navbar
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('username, full_name, avatar_url')
+        .eq('id', user.id)
+        .single()
+
+      setUserProfile(profile)
+      setIsPageLoading(false)
 
       // Fetch blocked users
       setIsLoadingBlocked(true)
@@ -84,6 +97,27 @@ export default function PrivacySettingsPage() {
 
     fetchData()
   }, [supabase, router])
+
+  if (isPageLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="h-14 border-b bg-muted/40 animate-pulse" />
+        <div className="mx-auto max-w-2xl space-y-6 p-4 pt-10">
+          <div className="space-y-2">
+            <div className="h-9 w-40 bg-muted animate-pulse rounded" />
+            <div className="h-4 w-72 bg-muted animate-pulse rounded" />
+          </div>
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="rounded-lg border bg-card p-6 space-y-3">
+              <div className="h-5 w-32 bg-muted animate-pulse rounded" />
+              <div className="h-4 w-48 bg-muted animate-pulse rounded" />
+              <div className="h-10 bg-muted animate-pulse rounded" />
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   const handleUnblockUser = async (blockedId: string) => {
     try {
@@ -114,7 +148,9 @@ export default function PrivacySettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 p-4">
+    <div className="min-h-screen bg-background">
+      <AppNavbar user={userProfile} />
+      <div className="mx-auto max-w-2xl space-y-6 p-4 pt-10">
       <div>
         <h1 className="text-3xl font-bold">Privacy & Safety</h1>
         <p className="text-muted-foreground">
@@ -259,6 +295,7 @@ export default function PrivacySettingsPage() {
           </AlertDialog>
         </CardContent>
       </Card>
+    </div>
     </div>
   )
 }

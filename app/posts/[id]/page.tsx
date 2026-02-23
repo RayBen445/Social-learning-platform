@@ -7,6 +7,8 @@ import PostVoteButton from '@/components/posts/post-vote-button'
 import CommentSection from '@/components/posts/comment-section'
 import BookmarkButton from '@/components/posts/bookmark-button'
 import ShareButton from '@/components/posts/share-button'
+import { VerifiedBadge } from '@/components/users/verified-badge'
+import { Suspense } from 'react'
 
 interface PostPageProps {
   params: Promise<{
@@ -14,7 +16,48 @@ interface PostPageProps {
   }>
 }
 
+function PostLoading() {
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto max-w-3xl py-10">
+        {/* Article skeleton */}
+        <div className="mb-8 space-y-4">
+          <div className="h-10 w-3/4 bg-muted animate-pulse rounded" />
+          <div className="h-5 w-1/2 bg-muted animate-pulse rounded" />
+          <div className="flex items-center gap-3 py-4 border-y">
+            <div className="h-12 w-12 rounded-full bg-muted animate-pulse flex-shrink-0" />
+            <div className="space-y-2">
+              <div className="h-4 w-28 bg-muted animate-pulse rounded" />
+              <div className="h-3 w-40 bg-muted animate-pulse rounded" />
+            </div>
+          </div>
+          <div className="space-y-3 py-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="h-4 bg-muted animate-pulse rounded" />
+            ))}
+          </div>
+        </div>
+        {/* Comments skeleton */}
+        <div className="space-y-4">
+          <div className="h-8 w-40 bg-muted animate-pulse rounded" />
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-24 bg-muted animate-pulse rounded-lg border" />
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default async function PostPage({ params }: PostPageProps) {
+  return (
+    <Suspense fallback={<PostLoading />}>
+      <PostContent params={params} />
+    </Suspense>
+  )
+}
+
+async function PostContent({ params }: PostPageProps) {
   const { id } = await params
   const supabase = await createClient()
 
@@ -89,7 +132,7 @@ export default async function PostPage({ params }: PostPageProps) {
                   {post.user?.full_name || post.user?.username}
                 </Link>
                 {post.user?.is_verified && (
-                  <span className="text-blue-600 text-sm">✓ Verified</span>
+                  <VerifiedBadge verificationType={post.user.verification_type} />
                 )}
               </div>
               <p className="text-sm text-muted-foreground">
@@ -182,7 +225,7 @@ export default async function PostPage({ params }: PostPageProps) {
                             {comment.user?.full_name || comment.user?.username}
                           </Link>
                           {comment.user?.is_verified && (
-                            <span className="text-blue-600 text-xs">✓</span>
+                            <VerifiedBadge verificationType={comment.user.verification_type} size="xs" />
                           )}
                           <span className="text-xs text-muted-foreground">
                             {new Date(comment.created_at).toLocaleDateString()}
