@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import { VerifiedBadge } from '@/components/users/verified-badge'
+import { AppNavbar } from '@/components/app-navbar'
 
 function LeaderboardLoading() {
   return (
@@ -51,6 +52,10 @@ async function LeaderboardContent() {
     data: { user: currentUser },
   } = await supabase.auth.getUser()
 
+  const { data: currentProfile } = currentUser
+    ? await supabase.from('profiles').select('username, full_name, avatar_url').eq('id', currentUser.id).single()
+    : { data: null }
+
   const getMedalEmoji = (rank: number) => {
     switch (rank) {
       case 1:
@@ -66,6 +71,7 @@ async function LeaderboardContent() {
 
   return (
     <div className="min-h-screen bg-background">
+      <AppNavbar user={currentProfile ?? undefined} />
       <div className="container mx-auto py-10">
         <div className="max-w-3xl mx-auto space-y-8">
           {/* Header */}

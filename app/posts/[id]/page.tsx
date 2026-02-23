@@ -9,6 +9,7 @@ import BookmarkButton from '@/components/posts/bookmark-button'
 import ShareButton from '@/components/posts/share-button'
 import { VerifiedBadge } from '@/components/users/verified-badge'
 import { Suspense } from 'react'
+import { AppNavbar } from '@/components/app-navbar'
 
 interface PostPageProps {
   params: Promise<{
@@ -98,8 +99,13 @@ async function PostContent({ params }: PostPageProps) {
     data: { user: currentUser },
   } = await supabase.auth.getUser()
 
+  const { data: currentProfile } = currentUser
+    ? await supabase.from('profiles').select('username, full_name, avatar_url').eq('id', currentUser.id).single()
+    : { data: null }
+
   return (
     <div className="min-h-screen bg-background">
+      <AppNavbar user={currentProfile ?? undefined} />
       <div className="container mx-auto max-w-3xl py-10">
         {/* Post Header */}
         <article className="mb-8">

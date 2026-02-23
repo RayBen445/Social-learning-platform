@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { AppNavbar } from '@/components/app-navbar'
 
 export default function CreatePostPage() {
   const [title, setTitle] = useState('')
@@ -25,8 +26,23 @@ export default function CreatePostPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [topics_loading, setTopicsLoading] = useState(true)
+  const [navbarUser, setNavbarUser] = useState<{ username?: string; full_name?: string; avatar_url?: string } | null>(null)
   const router = useRouter()
   const supabase = createClient()
+
+  useEffect(() => {
+    const fetchNavbarUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('username, full_name, avatar_url')
+        .eq('id', user.id)
+        .single()
+      if (profile) setNavbarUser(profile)
+    }
+    fetchNavbarUser()
+  }, [])
 
   useEffect(() => {
     const fetchTopics = async () => {
@@ -106,7 +122,9 @@ export default function CreatePostPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-2xl py-10">
+    <div className="min-h-screen bg-background">
+      <AppNavbar user={navbarUser ?? undefined} />
+      <div className="container mx-auto max-w-2xl py-10">
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Create New Post</h1>
@@ -207,6 +225,7 @@ export default function CreatePostPage() {
             </form>
           </CardContent>
         </Card>
+      </div>
       </div>
     </div>
   )

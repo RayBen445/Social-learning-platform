@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { Suspense } from 'react'
 import { VerifiedBadge } from '@/components/users/verified-badge'
 import { Building2, GraduationCap, BookOpen, MapPin, Globe } from 'lucide-react'
+import { AppNavbar } from '@/components/app-navbar'
 
 // Profile page loading skeleton
 function ProfileLoading() {
@@ -96,8 +97,13 @@ async function ProfileContent({ params }: ProfilePageProps) {
   } = await supabase.auth.getUser()
   const isOwnProfile = currentUser?.id === profile.id
 
+  const { data: currentProfile } = currentUser
+    ? await supabase.from('profiles').select('username, full_name, avatar_url').eq('id', currentUser.id).single()
+    : { data: null }
+
   return (
     <div className="min-h-screen bg-background">
+      <AppNavbar user={currentProfile ?? undefined} />
       {/* Banner */}
       {profile.banner_url ? (
         <img src={profile.banner_url} alt="Cover photo" className="w-full h-48 object-cover" />

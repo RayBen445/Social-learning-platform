@@ -4,10 +4,12 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { motion } from 'framer-motion'
+import { PublicNavbar } from '@/components/public-navbar'
 
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-background">
+      <PublicNavbar />
       <div className="mx-auto max-w-4xl px-4 py-12">
         <Link href="/">
           <Button variant="ghost" className="mb-8">← Back to Home</Button>

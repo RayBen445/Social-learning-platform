@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { AppNavbar } from '@/components/app-navbar'
 
 export default async function AchievementsPage() {
   const supabase = await createClient()
@@ -25,10 +26,10 @@ export default async function AchievementsPage() {
     .eq('user_id', user.id)
     .order('achieved_at', { ascending: false })
 
-  // Fetch user profile for reputation
+  // Fetch user profile for reputation and navbar
   const { data: profile } = await supabase
     .from('profiles')
-    .select('reputation_points, total_posts, total_followers')
+    .select('username, full_name, avatar_url, reputation_points, total_posts, total_followers')
     .eq('id', user.id)
     .single()
 
@@ -68,6 +69,7 @@ export default async function AchievementsPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <AppNavbar user={profile ?? undefined} />
       <div className="container mx-auto py-10">
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Header */}
