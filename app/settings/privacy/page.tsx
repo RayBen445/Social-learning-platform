@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { AppNavbar } from '@/components/app-navbar'
+import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -151,6 +153,11 @@ export default function PrivacySettingsPage() {
     <div className="min-h-screen bg-background">
       <AppNavbar user={userProfile} />
       <div className="mx-auto max-w-2xl space-y-6 p-4 pt-10">
+      {/* Back navigation */}
+      <Link href="/settings" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+        <ArrowLeft className="h-4 w-4" />
+        Settings
+      </Link>
       <div>
         <h1 className="text-3xl font-bold">Privacy & Safety</h1>
         <p className="text-muted-foreground">

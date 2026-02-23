@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import MarkNotificationAsReadButton from '@/components/notifications/mark-as-read-button'
 import { AppNavbar } from '@/components/app-navbar'
-import { Bell, MessageCircle, Heart, UserPlus, Share2 } from 'lucide-react'
+import { Bell, MessageCircle, Heart, UserPlus, Share2, ArrowLeft } from 'lucide-react'
 import { Suspense } from 'react'
 import { VerifiedBadge } from '@/components/users/verified-badge'
 
@@ -125,11 +125,17 @@ async function NotificationsContent({ userProfile, notifications }: { userProfil
         <div className="space-y-6">
           {/* Header */}
           <div className="flex items-center gap-3">
+            <Link href="/dashboard" className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <ArrowLeft className="h-4 w-4" />
+              Dashboard
+            </Link>
+          </div>
+          <div className="flex items-center gap-3">
             <Bell className="h-8 w-8 text-primary" />
             <div>
               <h1 className="text-3xl font-bold">Notifications</h1>
               <p className="text-muted-foreground">
-                Stay updated with what's happening in your community
+                Stay updated with what&apos;s happening in your community
               </p>
             </div>
           </div>

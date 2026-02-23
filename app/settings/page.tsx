@@ -3,7 +3,9 @@ import { redirect } from 'next/navigation'
 import { AppNavbar } from '@/components/app-navbar'
 import { Card, CardContent } from '@/components/ui/card'
 import Link from 'next/link'
-import { User, Shield, ChevronRight } from 'lucide-react'
+import { ProfileCompletionBar } from '@/components/profile-completion-bar'
+import { computeProfileCompletion } from '@/lib/profile-completion'
+import { User, Shield, ChevronRight, KeyRound, GraduationCap, Bell, MessageSquare, Palette } from 'lucide-react'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -18,9 +20,11 @@ export default async function SettingsPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('username, full_name, avatar_url')
+    .select('username, full_name, avatar_url, institution, department, level, is_verified')
     .eq('id', user.id)
     .single()
+
+  const completion = computeProfileCompletion(profile ?? {})
 
   const sections = [
     {
@@ -35,6 +39,36 @@ export default async function SettingsPage() {
       title: 'Privacy & Safety',
       description: 'Manage blocked users, muted accounts, and messaging preferences',
     },
+    {
+      href: '/settings/account',
+      icon: KeyRound,
+      title: 'Account',
+      description: 'Username, email, password, and device sessions',
+    },
+    {
+      href: '/settings/academic',
+      icon: GraduationCap,
+      title: 'Academic & Verification',
+      description: 'Institution, department, level, and verification status',
+    },
+    {
+      href: '/settings/notifications',
+      icon: Bell,
+      title: 'Notifications',
+      description: 'Manage push, email, and in-app notification preferences',
+    },
+    {
+      href: '/settings/messaging',
+      icon: MessageSquare,
+      title: 'Messaging',
+      description: 'Message requests, group invites, and file downloads',
+    },
+    {
+      href: '/settings/appearance',
+      icon: Palette,
+      title: 'Appearance',
+      description: 'View density, font size, and theme',
+    },
   ]
 
   return (
@@ -47,6 +81,13 @@ export default async function SettingsPage() {
             <h1 className="text-3xl font-bold">Settings</h1>
             <p className="text-muted-foreground">Manage your account preferences</p>
           </div>
+
+          {/* Profile completion bar */}
+          <ProfileCompletionBar
+            percent={completion.percent}
+            steps={completion.steps}
+            isComplete={completion.isComplete}
+          />
 
           <div className="space-y-3">
             {sections.map(({ href, icon: Icon, title, description }) => (

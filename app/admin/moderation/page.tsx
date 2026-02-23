@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
+import { AppNavbar } from '@/components/app-navbar'
 
 interface Report {
   id: string
@@ -38,6 +39,7 @@ export default function ModerationPage() {
   const [adminNotes, setAdminNotes] = useState('')
   const [newStatus, setNewStatus] = useState('')
   const [isAdmin, setIsAdmin] = useState(false)
+  const [navbarUser, setNavbarUser] = useState<{ username?: string; full_name?: string; avatar_url?: string } | null>(null)
   const router = useRouter()
   const supabase = createClient()
 
@@ -55,7 +57,7 @@ export default function ModerationPage() {
       // Check if user is admin (simple check - in production use custom claims)
       const { data: profile } = await supabase
         .from('profiles')
-        .select('is_verified')
+        .select('is_verified, username, full_name, avatar_url')
         .eq('id', user.id)
         .single()
 
@@ -64,6 +66,7 @@ export default function ModerationPage() {
         return
       }
 
+      setNavbarUser({ username: profile.username, full_name: profile.full_name, avatar_url: profile.avatar_url })
       setIsAdmin(true)
 
       // Fetch reports
@@ -124,7 +127,9 @@ export default function ModerationPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 p-4">
+    <div className="min-h-screen bg-background">
+      <AppNavbar user={navbarUser ?? undefined} />
+      <div className="mx-auto max-w-6xl space-y-6 p-4">
       <div>
         <h1 className="text-3xl font-bold">Content Moderation</h1>
         <p className="text-muted-foreground">Review and manage reported content</p>
@@ -243,6 +248,7 @@ export default function ModerationPage() {
           )}
         </div>
       )}
+      </div>
     </div>
   )
 }
