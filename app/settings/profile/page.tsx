@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Textarea } from '@/components/ui/textarea'
-import { Upload, X, Loader2, ArrowLeft } from 'lucide-react'
+import { Upload, X, Loader2, ArrowLeft, CheckCircle } from 'lucide-react'
 import { AppNavbar } from '@/components/app-navbar'
 import Link from 'next/link'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -104,7 +104,7 @@ export default function ProfileSettingsPage() {
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (!file.type.startsWith('image/')) { setError('Please select an image file'); return }
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) { setError('Please select a JPG, PNG, or WebP image'); return }
     if (file.size > 5 * 1024 * 1024) { setError('Image size must be less than 5MB'); return }
     setAvatarFile(file)
     setError(null)
@@ -117,7 +117,7 @@ export default function ProfileSettingsPage() {
   const handleBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (!file.type.startsWith('image/')) { setError('Please select an image file'); return }
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) { setError('Please select a JPG, PNG, or WebP image'); return }
     if (file.size > 5 * 1024 * 1024) { setError('Image size must be less than 5MB'); return }
     setBannerFile(file)
     setError(null)
@@ -164,8 +164,33 @@ export default function ProfileSettingsPage() {
     }
   }
 
-  const handleSaveProfile = async (e: React.FormEvent) => {
-    e.preventDefault()
+  // Upload avatar immediately and persist to DB — no need to click Save Changes
+  const handleUploadAvatarNow = async () => {
+    if (!avatarFile) return
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    setError(null)
+    try {
+      const avatarUrl = await uploadAvatar(user.id)
+      if (avatarUrl) {
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ avatar_url: avatarUrl, updated_at: new Date().toISOString() })
+          .eq('id', user.id)
+        if (updateError) throw updateError
+        setProfile((prev: any) => ({ ...prev, avatar_url: avatarUrl }))
+        setAvatarPreview(avatarUrl)
+        setAvatarFile(null)
+        setSuccess(true)
+        setTimeout(() => setSuccess(false), 3000)
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to upload avatar')
+    }
+  }
+
+  const handleSaveProfile = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
     setIsSaving(true)
     setError(null)
     setSuccess(false)
@@ -337,12 +362,12 @@ export default function ProfileSettingsPage() {
                   <input
                     id="banner"
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/webp"
                     onChange={handleBannerChange}
                     className="hidden"
                     disabled={isUploadingBanner}
                   />
-                  <p className="text-xs text-muted-foreground">PNG, JPG, GIF up to 5MB</p>
+                  <p className="text-xs text-muted-foreground">JPG, PNG, WebP – max 5 MB</p>
                   {(bannerFile || bannerPreview) && (
                     <Button
                       type="button"
@@ -387,22 +412,36 @@ export default function ProfileSettingsPage() {
                     <input
                       id="avatar"
                       type="file"
-                      accept="image/*"
+                      accept="image/jpeg,image/png,image/webp"
                       onChange={handleAvatarChange}
                       className="hidden"
                       disabled={isUploadingAvatar}
                     />
-                    <p className="text-xs text-muted-foreground">PNG, JPG, GIF up to 5MB</p>
+                    <p className="text-xs text-muted-foreground">JPG, PNG, WebP – max 5 MB</p>
                     {avatarFile && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => { setAvatarFile(null); setAvatarPreview(profile?.avatar_url || null) }}
-                      >
-                        <X className="h-4 w-4 mr-1" />
-                        Clear
-                      </Button>
+                      <div className="flex gap-2 flex-wrap">
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={handleUploadAvatarNow}
+                          disabled={isUploadingAvatar}
+                        >
+                          {isUploadingAvatar ? (
+                            <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Uploading…</>
+                          ) : (
+                            'Upload Now'
+                          )}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => { setAvatarFile(null); setAvatarPreview(profile?.avatar_url || null) }}
+                        >
+                          <X className="h-4 w-4 mr-1" />
+                          Clear
+                        </Button>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -590,6 +629,29 @@ export default function ProfileSettingsPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Sticky save bar */}
+          <div className="sticky bottom-4 z-10 flex items-center justify-between rounded-lg border bg-background/95 px-4 py-3 shadow-md backdrop-blur">
+            {success ? (
+              <span className="flex items-center gap-1.5 text-sm text-green-600 dark:text-green-400">
+                <CheckCircle className="h-4 w-4" />
+                Changes saved successfully
+              </span>
+            ) : (
+              <span className="text-sm text-muted-foreground">Save when ready</span>
+            )}
+            <Button
+              type="button"
+              onClick={handleSaveProfile}
+              disabled={isSaving || isUploadingAvatar || isUploadingBanner}
+            >
+              {isSaving || isUploadingAvatar || isUploadingBanner ? (
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Saving…</>
+              ) : (
+                'Save Changes'
+              )}
+            </Button>
+          </div>
         </div>
       </div>
     </div>

@@ -38,6 +38,7 @@ import {
   Upload,
 } from 'lucide-react'
 import { handleSignUpEmail } from '@/app/actions/send-emails'
+import { NIGERIA_STATES, INSTITUTIONS_BY_STATE } from '@/lib/nigeria-institutions'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -85,7 +86,10 @@ export default function SignUpPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
 
   // Step 2 — Institution
+  const [institutionState, setInstitutionState] = useState('')
   const [institution, setInstitution] = useState('')
+  const [institutionCustom, setInstitutionCustom] = useState('')
+  const [institutionSearch, setInstitutionSearch] = useState('')
   const [verificationMethod, setVerificationMethod] = useState<VerificationMethod>('email')
   const [studentIdFile, setStudentIdFile] = useState<File | null>(null)
 
@@ -120,7 +124,9 @@ export default function SignUpPage() {
   }
 
   const validateStep2 = (): string | null => {
-    if (!institution.trim()) return 'Institution name is required'
+    if (!institutionState) return 'Please select your state'
+    if (!institution) return 'Please select your institution'
+    if (institution === 'other' && !institutionCustom.trim()) return 'Please enter your institution name'
     return null
   }
 
@@ -192,7 +198,7 @@ export default function SignUpPage() {
           await supabase
             .from('profiles')
             .update({
-              institution,
+              institution: institution === 'other' ? institutionCustom : institution,
               faculty: facultyField,
               department,
               level,
@@ -365,15 +371,74 @@ export default function SignUpPage() {
             {/* ── Step 2 ── */}
             {step === 2 && (
               <>
+                {/* State selection */}
                 <div className="grid gap-2">
-                  <Label htmlFor="institution">Institution Name *</Label>
-                  <Input
-                    id="institution"
-                    placeholder="e.g. University of Lagos"
-                    value={institution}
-                    onChange={(e) => setInstitution(e.target.value)}
-                  />
+                  <Label htmlFor="state">State *</Label>
+                  <Select
+                    value={institutionState}
+                    onValueChange={(v) => {
+                      setInstitutionState(v)
+                      setInstitution('')
+                      setInstitutionSearch('')
+                    }}
+                  >
+                    <SelectTrigger id="state">
+                      <SelectValue placeholder="Select your state" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {NIGERIA_STATES.map((s) => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
+
+                {/* Institution selection — only shown after state is selected */}
+                {institutionState && (() => {
+                  const allForState = INSTITUTIONS_BY_STATE[institutionState] || []
+                  const filtered = institutionSearch
+                    ? allForState.filter((i) =>
+                        i.toLowerCase().includes(institutionSearch.toLowerCase())
+                      )
+                    : allForState
+                  return (
+                    <div className="grid gap-2">
+                      <Label htmlFor="institution">Institution *</Label>
+                      <Input
+                        placeholder="Search institution…"
+                        value={institutionSearch}
+                        onChange={(e) => {
+                          setInstitutionSearch(e.target.value)
+                          setInstitution('')
+                        }}
+                      />
+                      {filtered.length === 0 && institutionSearch ? (
+                        <p className="text-sm text-muted-foreground">
+                          No institutions found for &quot;{institutionSearch}&quot;
+                        </p>
+                      ) : (
+                        <Select value={institution} onValueChange={setInstitution}>
+                          <SelectTrigger id="institution">
+                            <SelectValue placeholder="Select your institution" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {filtered.map((inst) => (
+                              <SelectItem key={inst} value={inst}>{inst}</SelectItem>
+                            ))}
+                            <SelectItem value="other">My institution isn&apos;t listed</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                      {(institution === 'other' || (filtered.length === 0 && institutionSearch)) && (
+                        <Input
+                          placeholder="Enter your institution name"
+                          value={institutionCustom}
+                          onChange={(e) => setInstitutionCustom(e.target.value)}
+                        />
+                      )}
+                    </div>
+                  )
+                })()}
 
                 <div className="space-y-2">
                   <Label>Verification Method</Label>
