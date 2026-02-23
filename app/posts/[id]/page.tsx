@@ -13,7 +13,9 @@ import { AppNavbar } from '@/components/app-navbar'
 import { BottomNav } from '@/components/bottom-nav'
 import { DeletePostButton } from '@/components/posts/delete-post-button'
 import { PostBody } from '@/components/posts/post-body'
-import { Pencil, Trash2, MoreHorizontal, MessageCircle, Bookmark, Share2, Flag, Eye } from 'lucide-react'
+import { ReplyButton } from '@/components/posts/reply-button'
+import { HelpfulButton } from '@/components/posts/helpful-button'
+import { Pencil, MessageCircle, Eye, Globe } from 'lucide-react'
 
 interface PostPageProps {
   params: Promise<{
@@ -24,31 +26,32 @@ interface PostPageProps {
 function PostLoading() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto max-w-3xl py-10">
-        {/* Article skeleton */}
-        <div className="mb-8 space-y-4">
-          <div className="h-10 w-3/4 bg-muted animate-pulse rounded" />
-          <div className="h-5 w-1/2 bg-muted animate-pulse rounded" />
-          <div className="flex items-center gap-3 py-4 border-y">
-            <div className="h-12 w-12 rounded-full bg-muted animate-pulse flex-shrink-0" />
-            <div className="space-y-2">
-              <div className="h-4 w-28 bg-muted animate-pulse rounded" />
-              <div className="h-3 w-40 bg-muted animate-pulse rounded" />
-            </div>
-          </div>
-          <div className="space-y-3 py-4">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-4 bg-muted animate-pulse rounded" />
-            ))}
+      {/* Navbar placeholder */}
+      <div className="h-14 border-b bg-background/95" />
+      <div className="container mx-auto max-w-3xl px-4 py-8">
+        {/* Post header skeleton */}
+        <div className="flex gap-3 mb-6">
+          <div className="h-12 w-12 rounded-full bg-muted animate-pulse flex-shrink-0" />
+          <div className="space-y-2 flex-grow">
+            <div className="h-4 w-32 bg-muted animate-pulse rounded" />
+            <div className="h-3 w-48 bg-muted animate-pulse rounded" />
+            <div className="h-3 w-24 bg-muted animate-pulse rounded" />
           </div>
         </div>
-        {/* Comments skeleton */}
-        <div className="space-y-4">
-          <div className="h-8 w-40 bg-muted animate-pulse rounded" />
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-24 bg-muted animate-pulse rounded-lg border" />
+        {/* Title + body skeleton */}
+        <div className="space-y-3 mb-8">
+          <div className="h-7 w-3/4 bg-muted animate-pulse rounded" />
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="h-4 bg-muted animate-pulse rounded" style={{ width: `${85 - i * 5}%` }} />
           ))}
         </div>
+        {/* Footer skeleton */}
+        <div className="h-10 border-y bg-muted/20 animate-pulse rounded mb-8" />
+        {/* Comments skeleton */}
+        <div className="h-6 w-40 bg-muted animate-pulse rounded mb-4" />
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-24 bg-muted animate-pulse rounded-lg border mb-3" />
+        ))}
       </div>
     </div>
   )
@@ -149,13 +152,21 @@ async function PostContent({ params }: PostPageProps) {
                   {[post.user?.institution, post.user?.department, post.user?.level].filter(Boolean).join(' · ')}
                 </p>
               )}
-              {/* Timestamp */}
+              {/* Timestamp + optional visibility label */}
               <p className="text-xs text-muted-foreground">
                 {new Date(post.created_at).toLocaleDateString('en-US', {
                   month: 'short',
                   day: 'numeric',
                   year: 'numeric',
                 })}
+                {(post as any).visibility && (post as any).visibility !== 'everyone' && (
+                  <span className="ml-2 inline-flex items-center gap-0.5">
+                    <Globe className="h-3 w-3" />
+                    {(post as any).visibility === 'school' && 'Posted to School'}
+                    {(post as any).visibility === 'course' && 'Posted to Course'}
+                    {(post as any).visibility === 'group' && 'Posted to Group'}
+                  </span>
+                )}
               </p>
             </div>
 
@@ -248,7 +259,7 @@ async function PostContent({ params }: PostPageProps) {
           <h2 className="text-xl font-bold">Discussion ({post.comment_count})</h2>
 
           {currentUser ? (
-            <CommentSection postId={id} currentUser={currentUser} />
+            <CommentSection postId={id} currentUser={currentUser} currentProfile={currentProfile} />
           ) : (
             <Card>
               <CardContent className="pt-6 text-center">
@@ -307,11 +318,13 @@ async function PostContent({ params }: PostPageProps) {
                           </div>
                           <p className="mt-2 text-sm leading-relaxed">{comment.content}</p>
                           <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
-                            <button className="hover:text-foreground">Reply</button>
+                            <ReplyButton
+                              postId={id}
+                              parentCommentId={comment.id}
+                              currentUserId={currentUser?.id}
+                            />
                             {isOwnPost && (
-                              <button className="hover:text-foreground flex items-center gap-1">
-                                👍 Helpful
-                              </button>
+                              <HelpfulButton commentId={comment.id} />
                             )}
                           </div>
                         </div>
