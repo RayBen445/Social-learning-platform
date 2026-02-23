@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { AppNavbar } from '@/components/app-navbar'
 import { Card, CardContent } from '@/components/ui/card'
 import Link from 'next/link'
-import { User, Shield, ChevronRight } from 'lucide-react'
+import { User, Shield, ChevronRight, KeyRound, GraduationCap, Bell, MessageSquare, Palette } from 'lucide-react'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -34,6 +34,36 @@ export default async function SettingsPage() {
       icon: Shield,
       title: 'Privacy & Safety',
       description: 'Manage blocked users, muted accounts, and messaging preferences',
+    },
+    {
+      href: '/settings/account',
+      icon: KeyRound,
+      title: 'Account',
+      description: 'Username, email, password, and device sessions',
+    },
+    {
+      href: '/settings/academic',
+      icon: GraduationCap,
+      title: 'Academic & Verification',
+      description: 'Institution, department, level, and verification status',
+    },
+    {
+      href: '/settings/notifications',
+      icon: Bell,
+      title: 'Notifications',
+      description: 'Manage push, email, and in-app notification preferences',
+    },
+    {
+      href: '/settings/messaging',
+      icon: MessageSquare,
+      title: 'Messaging',
+      description: 'Message requests, group invites, and file downloads',
+    },
+    {
+      href: '/settings/appearance',
+      icon: Palette,
+      title: 'Appearance',
+      description: 'View density, font size, and theme',
     },
   ]
 

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import { VerifiedBadge } from '@/components/users/verified-badge'
+import { Building2, GraduationCap, BookOpen, MapPin, Globe } from 'lucide-react'
 
 // Profile page loading skeleton
 function ProfileLoading() {
@@ -98,12 +99,16 @@ async function ProfileContent({ params }: ProfilePageProps) {
   return (
     <div className="min-h-screen bg-background">
       {/* Banner */}
-      <div className="h-32 bg-gradient-to-r from-blue-500 to-purple-500" />
+      {profile.banner_url ? (
+        <img src={profile.banner_url} alt="Cover photo" className="w-full h-48 object-cover" />
+      ) : (
+        <div className="h-48 bg-gradient-to-r from-primary/80 to-primary" />
+      )}
 
       <div className="container mx-auto px-4 pb-12">
         <div className="max-w-4xl">
           {/* Profile Header */}
-          <Card className="-mt-16 mb-6 relative z-10">
+          <Card className="-mt-20 mb-6 relative z-10">
             <CardContent className="pt-6">
               <div className="flex flex-col md:flex-row gap-6 items-start md:items-end">
                 {/* Avatar */}
@@ -134,6 +139,31 @@ async function ProfileContent({ params }: ProfilePageProps) {
                   <p className="text-muted-foreground mb-2">@{profile.username}</p>
                   {profile.bio && <p className="mb-4">{profile.bio}</p>}
 
+                  {/* Academic Info */}
+                  {(profile.institution || profile.department || profile.faculty) && (
+                    <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mb-4">
+                      {profile.institution && (
+                        <span className="flex items-center gap-1">
+                          <Building2 className="h-3.5 w-3.5" />
+                          {profile.institution}
+                        </span>
+                      )}
+                      {profile.faculty && (
+                        <span className="flex items-center gap-1">
+                          <GraduationCap className="h-3.5 w-3.5" />
+                          {profile.faculty}
+                        </span>
+                      )}
+                      {profile.department && (
+                        <span className="flex items-center gap-1">
+                          <BookOpen className="h-3.5 w-3.5" />
+                          {profile.department}
+                        </span>
+                      )}
+                      {profile.level && <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">{profile.level}</span>}
+                    </div>
+                  )}
+
                   {/* Stats */}
                   <div className="flex gap-6 mb-4">
                     <div>
@@ -148,10 +178,16 @@ async function ProfileContent({ params }: ProfilePageProps) {
 
                   {/* Location and Website */}
                   <div className="flex gap-4 text-sm text-muted-foreground mb-4">
-                    {profile.location && <span>📍 {profile.location}</span>}
+                    {profile.location && (
+                      <span className="flex items-center gap-1">
+                        <MapPin className="h-3.5 w-3.5" />
+                        {profile.location}
+                      </span>
+                    )}
                     {profile.website_url && (
-                      <a href={profile.website_url} target="_blank" rel="noopener noreferrer" className="hover:text-primary">
-                        🌐 Website
+                      <a href={profile.website_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-primary">
+                        <Globe className="h-3.5 w-3.5" />
+                        Website
                       </a>
                     )}
                   </div>
