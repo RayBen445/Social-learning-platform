@@ -141,14 +141,6 @@ async function ProfileContent({ params }: ProfilePageProps) {
                       <div className="text-xs text-muted-foreground">Posts</div>
                     </div>
                     <div>
-                      <div className="font-bold text-lg">{profile.total_followers}</div>
-                      <div className="text-xs text-muted-foreground">Followers</div>
-                    </div>
-                    <div>
-                      <div className="font-bold text-lg">{profile.total_following}</div>
-                      <div className="text-xs text-muted-foreground">Following</div>
-                    </div>
-                    <div>
                       <div className="font-bold text-lg">{profile.reputation_points}</div>
                       <div className="text-xs text-muted-foreground">Reputation</div>
                     </div>

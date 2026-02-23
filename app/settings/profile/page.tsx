@@ -150,6 +150,7 @@ export default function ProfileSettingsPage() {
         .eq('id', user.id)
 
       if (updateError) throw updateError
+      setProfile((prev: any) => ({ ...prev, full_name: fullName, bio, location, website_url: websiteUrl, avatar_url: avatarUrl }))
       setSuccess(true)
       setAvatarFile(null)
       setTimeout(() => setSuccess(false), 3000)
@@ -317,13 +318,19 @@ export default function ProfileSettingsPage() {
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="bio">Bio</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="bio">Bio</Label>
+                    <span className={`text-xs ${bio.length > 120 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                      {bio.length}/120
+                    </span>
+                  </div>
                   <Textarea
                     id="bio"
                     value={bio}
-                    onChange={(e) => setBio(e.target.value)}
+                    onChange={(e) => setBio(e.target.value.slice(0, 120))}
                     placeholder="Tell us about yourself..."
                     rows={4}
+                    maxLength={120}
                   />
                 </div>
 
