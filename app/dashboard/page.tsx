@@ -7,6 +7,8 @@ import { CheckCircle2, Circle, BookOpen, Users, MessageSquare, GraduationCap, Bu
 import { Suspense } from 'react'
 import { AppNavbar } from '@/components/app-navbar'
 import { BottomNav } from '@/components/bottom-nav'
+import { DashboardPrompt } from '@/components/dashboard-prompt'
+import { computeProfileCompletion } from '@/lib/profile-completion'
 
 function DashboardLoading() {
   return (
@@ -150,9 +152,23 @@ async function DashboardContent({ profile }: { profile: any }) {
   const completedCount = steps.filter((s) => s.done).length
   const showChecklist = completedCount < steps.length
 
+  // Profile completion for prompt
+  const completion = computeProfileCompletion(profile ?? {}, userCourses.length)
+
   return (
     <div className="min-h-screen bg-background">
       <AppNavbar user={profile ?? undefined} />
+
+      {/* Dismissible completion prompt — shows one step at a time */}
+      {!completion.isComplete && completion.nextStep && (
+        <div className="container mx-auto max-w-5xl px-4 pt-4">
+          <DashboardPrompt
+            stepId={completion.nextStep.id}
+            message={completion.nextStep.prompt}
+            href={completion.nextStep.href}
+          />
+        </div>
+      )}
 
       <main className="container mx-auto px-4 py-6 pb-24 md:pb-6 max-w-5xl">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

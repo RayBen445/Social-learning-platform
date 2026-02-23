@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import { AppNavbar } from '@/components/app-navbar'
 import { Card, CardContent } from '@/components/ui/card'
 import Link from 'next/link'
+import { ProfileCompletionBar } from '@/components/profile-completion-bar'
+import { computeProfileCompletion } from '@/lib/profile-completion'
 import { User, Shield, ChevronRight, KeyRound, GraduationCap, Bell, MessageSquare, Palette } from 'lucide-react'
 
 export default async function SettingsPage() {
@@ -18,9 +20,11 @@ export default async function SettingsPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('username, full_name, avatar_url')
+    .select('username, full_name, avatar_url, institution, department, level, is_verified')
     .eq('id', user.id)
     .single()
+
+  const completion = computeProfileCompletion(profile ?? {})
 
   const sections = [
     {
@@ -77,6 +81,13 @@ export default async function SettingsPage() {
             <h1 className="text-3xl font-bold">Settings</h1>
             <p className="text-muted-foreground">Manage your account preferences</p>
           </div>
+
+          {/* Profile completion bar */}
+          <ProfileCompletionBar
+            percent={completion.percent}
+            steps={completion.steps}
+            isComplete={completion.isComplete}
+          />
 
           <div className="space-y-3">
             {sections.map(({ href, icon: Icon, title, description }) => (

@@ -8,6 +8,8 @@ import { VerifiedBadge } from '@/components/users/verified-badge'
 import { Building2, GraduationCap, BookOpen, MapPin, Globe } from 'lucide-react'
 import { AppNavbar } from '@/components/app-navbar'
 import { BottomNav } from '@/components/bottom-nav'
+import { ProfileCompletionBar } from '@/components/profile-completion-bar'
+import { computeProfileCompletion } from '@/lib/profile-completion'
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime()
@@ -260,6 +262,18 @@ async function ProfileContent({ params }: ProfilePageProps) {
 
           {/* ── Main column ── */}
           <div className="md:col-span-2 space-y-6">
+
+            {/* Profile completion bar — own profile only */}
+            {isOwnProfile && (() => {
+              const completion = computeProfileCompletion(profile, courses.length)
+              return !completion.isComplete ? (
+                <ProfileCompletionBar
+                  percent={completion.percent}
+                  steps={completion.steps}
+                  isComplete={completion.isComplete}
+                />
+              ) : null
+            })()}
 
             {/* Academic Snapshot */}
             <Card>

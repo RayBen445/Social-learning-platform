@@ -8,8 +8,9 @@ import { Label } from '@/components/ui/label'
 import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Textarea } from '@/components/ui/textarea'
-import { Upload, X, Loader2 } from 'lucide-react'
+import { Upload, X, Loader2, ArrowLeft } from 'lucide-react'
 import { AppNavbar } from '@/components/app-navbar'
+import Link from 'next/link'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 export default function ProfileSettingsPage() {
@@ -288,6 +289,11 @@ export default function ProfileSettingsPage() {
 
       <div className="container mx-auto max-w-2xl py-10 px-4">
         <div className="space-y-6">
+          {/* Back navigation */}
+          <Link href="/settings" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <ArrowLeft className="h-4 w-4" />
+            Settings
+          </Link>
           <div>
             <h1 className="text-3xl font-bold">Profile Settings</h1>
             <p className="text-muted-foreground">Manage your profile information</p>

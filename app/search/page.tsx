@@ -10,7 +10,7 @@ import { AppNavbar } from '@/components/app-navbar'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { Search, Users, FileText, Tag, X, Filter } from 'lucide-react'
+import { Search, Users, FileText, Tag, X, Filter, ArrowLeft } from 'lucide-react'
 import {
   Select,
   SelectContent,
@@ -266,6 +266,16 @@ function SearchContent() {
           <div className="lg:col-span-3 space-y-6">
             {/* Search Bar */}
             <form onSubmit={handleSearch} className="space-y-2">
+              <div className="flex items-center gap-3 mb-2">
+                <button
+                  type="button"
+                  onClick={() => router.back()}
+                  className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back
+                </button>
+              </div>
               <h1 className="text-4xl font-bold">Search</h1>
               <div className="flex gap-2">
                 <div className="relative flex-grow">
