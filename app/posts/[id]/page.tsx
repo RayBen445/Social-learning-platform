@@ -1,15 +1,19 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import Link from 'next/link'
-import PostVoteButton from '@/components/posts/post-vote-button'
 import CommentSection from '@/components/posts/comment-section'
 import BookmarkButton from '@/components/posts/bookmark-button'
 import ShareButton from '@/components/posts/share-button'
+import ReportPostButton from '@/components/posts/report-post-button'
 import { VerifiedBadge } from '@/components/users/verified-badge'
 import { Suspense } from 'react'
 import { AppNavbar } from '@/components/app-navbar'
+import { BottomNav } from '@/components/bottom-nav'
+import { DeletePostButton } from '@/components/posts/delete-post-button'
+import { PostBody } from '@/components/posts/post-body'
+import { Pencil, Trash2, MoreHorizontal, MessageCircle, Bookmark, Share2, Flag, Eye } from 'lucide-react'
 
 interface PostPageProps {
   params: Promise<{
@@ -68,7 +72,7 @@ async function PostContent({ params }: PostPageProps) {
     .select(
       `
       *,
-      user:profiles(id, username, full_name, avatar_url, is_verified),
+      user:profiles(id, username, full_name, avatar_url, is_verified, verification_type, institution, department, level),
       post_topics(
         topics(id, name, slug)
       )
@@ -87,8 +91,7 @@ async function PostContent({ params }: PostPageProps) {
     .select(
       `
       *,
-      user:profiles(id, username, full_name, avatar_url, is_verified),
-      comment_votes(vote_type)
+      user:profiles(id, username, full_name, avatar_url, is_verified, verification_type)
     `
     )
     .eq('post_id', id)
@@ -103,58 +106,92 @@ async function PostContent({ params }: PostPageProps) {
     ? await supabase.from('profiles').select('username, full_name, avatar_url').eq('id', currentUser.id).single()
     : { data: null }
 
-  return (
-    <div className="min-h-screen bg-background">
-      <AppNavbar user={currentProfile ?? undefined} />
-      <div className="container mx-auto max-w-3xl py-10">
-        {/* Post Header */}
-        <article className="mb-8">
-          <div className="mb-4 space-y-2">
-            <h1 className="text-4xl font-bold">{post.title}</h1>
-            {post.excerpt && <p className="text-lg text-muted-foreground">{post.excerpt}</p>}
-          </div>
+  const isOwnPost = currentUser?.id === post.user?.id
 
-          {/* Author Info */}
-          <div className="flex items-center gap-3 py-4 border-y">
-            <div className="h-12 w-12 rounded-full bg-muted overflow-hidden">
-              {post.user?.avatar_url ? (
-                <img
-                  src={post.user.avatar_url}
-                  alt={post.user.full_name || post.user.username}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-white font-bold">
-                  {post.user?.username.charAt(0).toUpperCase()}
-                </div>
-              )}
-            </div>
-            <div className="flex-grow">
-              <div className="flex items-center gap-2">
-                <Link
-                  href={`/profile/${post.user?.username}`}
-                  className="font-bold hover:underline"
-                >
+  const editWindowMinutes = 30
+  const postAgeMs = Date.now() - new Date(post.created_at).getTime()
+  const canEdit = isOwnPost && postAgeMs < editWindowMinutes * 60 * 1000
+
+  return (
+    <div className="min-h-screen bg-background pb-20 md:pb-0">
+      <AppNavbar user={currentProfile ?? undefined} />
+      <div className="container mx-auto max-w-3xl px-4 py-8">
+        {/* Post Article */}
+        <article className="mb-8">
+          {/* Post Header */}
+          <div className="flex items-start gap-3 mb-6">
+            {/* Clickable avatar */}
+            <Link href={`/profile/${post.user?.username}`} className="flex-shrink-0">
+              <div className="h-12 w-12 rounded-full bg-muted overflow-hidden border-2 border-border">
+                {post.user?.avatar_url ? (
+                  <img src={post.user.avatar_url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-primary/20 flex items-center justify-center text-primary font-bold">
+                    {post.user?.username?.charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </div>
+            </Link>
+
+            <div className="flex-grow min-w-0">
+              {/* Name + badge row */}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <Link href={`/profile/${post.user?.username}`} className="font-semibold hover:underline text-sm">
                   {post.user?.full_name || post.user?.username}
                 </Link>
                 {post.user?.is_verified && (
-                  <VerifiedBadge verificationType={post.user.verification_type} />
+                  <VerifiedBadge verificationType={post.user.verification_type} size="xs" />
                 )}
               </div>
-              <p className="text-sm text-muted-foreground">
-                @{post.user?.username} · {new Date(post.created_at).toLocaleDateString()}
+              {/* Academic context */}
+              {(post.user?.institution || post.user?.department || post.user?.level) && (
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {[post.user?.institution, post.user?.department, post.user?.level].filter(Boolean).join(' · ')}
+                </p>
+              )}
+              {/* Timestamp */}
+              <p className="text-xs text-muted-foreground">
+                {new Date(post.created_at).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
               </p>
             </div>
+
+            {/* Poster-only controls (top right) */}
+            {isOwnPost && (
+              <div className="flex items-center gap-1 flex-shrink-0">
+                {canEdit && (
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link href={`/posts/${post.id}/edit`}>
+                      <Pencil className="h-4 w-4" />
+                      <span className="sr-only">Edit</span>
+                    </Link>
+                  </Button>
+                )}
+                <DeletePostButton postId={post.id} />
+              </div>
+            )}
           </div>
 
-          {/* Content */}
-          <div className="prose prose-invert max-w-none py-8">
-            <p>{post.content}</p>
-          </div>
+          {/* Post Title */}
+          {post.title && <h1 className="text-2xl font-bold mb-4 leading-tight">{post.title}</h1>}
 
-          {/* Topics */}
+          {/* Post Body */}
+          {isOwnPost ? (
+            <div className="prose prose-sm max-w-none dark:prose-invert">
+              {post.content.split('\n').map((p: string, i: number) =>
+                p.trim() ? <p key={i} className="mb-3 leading-relaxed">{p}</p> : <br key={i} />
+              )}
+            </div>
+          ) : (
+            <PostBody content={post.content} />
+          )}
+
+          {/* Topic Tags */}
           {post.post_topics && post.post_topics.length > 0 && (
-            <div className="mb-6 flex flex-wrap gap-2">
+            <div className="mt-6 mb-2 flex flex-wrap gap-2">
               {post.post_topics.map((pt: any) => (
                 <Link
                   key={pt.topics.id}
@@ -167,27 +204,48 @@ async function PostContent({ params }: PostPageProps) {
             </div>
           )}
 
-          {/* Stats and Actions */}
-          <div className="flex flex-wrap gap-4 items-center border-t py-4">
-            <div className="flex gap-4 text-sm text-muted-foreground">
-              <span>{post.upvote_count} upvotes</span>
-              <span>{post.comment_count} comments</span>
-              <span>{post.view_count} views</span>
+          {/* Post Footer */}
+          {isOwnPost ? (
+            <div className="flex items-center justify-between border-t border-b py-3 mt-4">
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <MessageCircle className="h-4 w-4" /> {post.comment_count} replies
+                </span>
+                <span className="flex items-center gap-1">
+                  <Eye className="h-4 w-4" /> {post.view_count} views
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <BookmarkButton postId={id} currentUser={currentUser} />
+                <ShareButton postId={id} postTitle={post.title || ''} />
+                {canEdit && (
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link href={`/posts/${post.id}/edit`}>
+                      <Pencil className="h-4 w-4 mr-1" />Edit
+                    </Link>
+                  </Button>
+                )}
+              </div>
             </div>
-
-            <div className="flex-grow" />
-
-            <div className="flex gap-2">
-              <PostVoteButton postId={id} currentUser={currentUser} />
-              <BookmarkButton postId={id} currentUser={currentUser} />
-              <ShareButton postId={id} postTitle={post.title} />
+          ) : (
+            <div className="flex items-center justify-between border-t border-b py-3 mt-4">
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                  <MessageCircle className="h-4 w-4" /> {post.comment_count} replies
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <BookmarkButton postId={id} currentUser={currentUser} />
+                <ShareButton postId={id} postTitle={post.title || ''} />
+                <ReportPostButton postId={id} postAuthorId={post.user?.id ?? ''} />
+              </div>
             </div>
-          </div>
+          )}
         </article>
 
         {/* Comments Section */}
         <div className="space-y-6">
-          <h2 className="text-2xl font-bold">Comments ({post.comment_count})</h2>
+          <h2 className="text-xl font-bold">Discussion ({post.comment_count})</h2>
 
           {currentUser ? (
             <CommentSection postId={id} currentUser={currentUser} />
@@ -205,48 +263,63 @@ async function PostContent({ params }: PostPageProps) {
           {/* Comments List */}
           <div className="space-y-4">
             {comments && comments.length > 0 ? (
-              comments.map((comment: any) => (
-                <Card key={comment.id}>
-                  <CardContent className="pt-6">
-                    <div className="flex gap-3">
-                      <div className="h-10 w-10 rounded-full bg-muted flex-shrink-0 overflow-hidden">
-                        {comment.user?.avatar_url ? (
-                          <img
-                            src={comment.user.avatar_url}
-                            alt={comment.user.full_name || comment.user.username}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-white text-xs font-bold">
-                            {comment.user?.username.charAt(0).toUpperCase()}
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-grow">
-                        <div className="flex items-center gap-2">
-                          <Link
-                            href={`/profile/${comment.user?.username}`}
-                            className="font-bold hover:underline"
-                          >
-                            {comment.user?.full_name || comment.user?.username}
-                          </Link>
-                          {comment.user?.is_verified && (
-                            <VerifiedBadge verificationType={comment.user.verification_type} size="xs" />
+              comments.map((comment: any) => {
+                const isPostAuthorComment = comment.user?.id === post.user?.id
+                return (
+                  <Card
+                    key={comment.id}
+                    className={isPostAuthorComment ? 'bg-primary/5 border-l-2 border-primary' : ''}
+                  >
+                    <CardContent className="pt-6">
+                      <div className="flex gap-3">
+                        <div className="h-10 w-10 rounded-full bg-muted flex-shrink-0 overflow-hidden">
+                          {comment.user?.avatar_url ? (
+                            <img
+                              src={comment.user.avatar_url}
+                              alt={comment.user.full_name || comment.user.username}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-primary/20 flex items-center justify-center text-primary text-xs font-bold">
+                              {comment.user?.username?.charAt(0).toUpperCase()}
+                            </div>
                           )}
-                          <span className="text-xs text-muted-foreground">
-                            {new Date(comment.created_at).toLocaleDateString()}
-                          </span>
                         </div>
-                        <p className="mt-2">{comment.content}</p>
-                        <div className="mt-2 flex gap-4 text-xs text-muted-foreground">
-                          <button className="hover:text-foreground">👍 {comment.upvote_count}</button>
-                          <button className="hover:text-foreground">👎 {comment.downvote_count}</button>
+                        <div className="flex-grow">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <Link
+                              href={`/profile/${comment.user?.username}`}
+                              className="font-semibold hover:underline text-sm"
+                            >
+                              {comment.user?.full_name || comment.user?.username}
+                            </Link>
+                            {comment.user?.is_verified && (
+                              <VerifiedBadge verificationType={comment.user.verification_type} size="xs" />
+                            )}
+                            {isPostAuthorComment && (
+                              <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium">
+                                Author
+                              </span>
+                            )}
+                            <span className="text-xs text-muted-foreground">
+                              {new Date(comment.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <p className="mt-2 text-sm leading-relaxed">{comment.content}</p>
+                          <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
+                            <button className="hover:text-foreground">Reply</button>
+                            {isOwnPost && (
+                              <button className="hover:text-foreground flex items-center gap-1">
+                                👍 Helpful
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
+                    </CardContent>
+                  </Card>
+                )
+              })
             ) : (
               <Card>
                 <CardContent className="pt-6 text-center text-muted-foreground">
@@ -257,6 +330,7 @@ async function PostContent({ params }: PostPageProps) {
           </div>
         </div>
       </div>
+      <BottomNav username={currentProfile?.username} />
     </div>
   )
 }
