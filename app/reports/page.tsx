@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { AppNavbar } from '@/components/app-navbar'
@@ -17,6 +17,21 @@ import Link from 'next/link'
 type ReportReason = 'spam' | 'harassment' | 'misinformation' | 'inappropriate' | 'other'
 
 export default function ReportsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background">
+        <div className="h-14 border-b bg-muted/40 animate-pulse" />
+        <div className="container mx-auto max-w-2xl px-4 py-10">
+          <div className="h-64 rounded-lg bg-muted animate-pulse" />
+        </div>
+      </div>
+    }>
+      <ReportsContent />
+    </Suspense>
+  )
+}
+
+function ReportsContent() {
   const [navbarUser, setNavbarUser] = useState<{ username?: string; full_name?: string; avatar_url?: string } | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
   const [subject, setSubject] = useState('')
