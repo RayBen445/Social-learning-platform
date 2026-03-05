@@ -62,16 +62,6 @@ export default async function MessagesPage() {
     .order('updated_at', { ascending: false })
     .limit(50)
 
-  const formatConversation = (convo: ConversationData) => {
-    const isUserOne = convo.user_one_id === user.id
-    return {
-      id: convo.id,
-      otherUser: isUserOne ? convo.other_user : convo.other_user,
-      lastMessage: convo.latest_message?.[0],
-      updatedAt: convo.updated_at,
-    }
-  }
-
   return (
     <Suspense fallback={<MessagesLoading />}>
       <MessagesContent userProfile={userProfile} conversations={conversations ?? []} />
@@ -104,6 +94,15 @@ type UserProfile = {
 }
 
 async function MessagesContent({ userProfile, conversations }: { userProfile: UserProfile | null; conversations: ConversationData[] }) {
+  const formatConversation = (convo: ConversationData) => {
+    return {
+      id: convo.id,
+      otherUser: convo.other_user,
+      lastMessage: convo.latest_message?.[0],
+      updatedAt: convo.updated_at,
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <AppNavbar user={userProfile || undefined} />
