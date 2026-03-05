@@ -128,7 +128,13 @@ async function DashboardContent({ profile }: { profile: UserProfile | null }) {
       .eq('user_id', profile?.id)
       .limit(6)
     userCourses = (cm ?? [])
-      .map((m: { courses: CourseData | null }) => m.courses)
+      .map((m) => {
+        const course = m.courses as CourseData | CourseData[] | null
+        if (Array.isArray(course)) {
+          return course[0] || null
+        }
+        return course
+      })
       .filter((course: CourseData | null): course is CourseData => course !== null)
   } catch { userCourses = [] }
 
@@ -141,7 +147,13 @@ async function DashboardContent({ profile }: { profile: UserProfile | null }) {
       .eq('user_id', profile?.id)
       .limit(4)
     userGroups = (gm ?? [])
-      .map((m: { groups: GroupData | null }) => m.groups)
+      .map((m) => {
+        const group = m.groups as GroupData | GroupData[] | null
+        if (Array.isArray(group)) {
+          return group[0] || null
+        }
+        return group
+      })
       .filter((group: GroupData | null): group is GroupData => group !== null)
   } catch { userGroups = [] }
 
