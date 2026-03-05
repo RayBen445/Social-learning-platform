@@ -164,6 +164,12 @@ async function DashboardContent({ profile }: { profile: UserProfile | null }) {
   } catch { userGroups = [] }
 
   // Recent posts (school-scoped activity placeholder)
+  type PostData = {
+    id: string
+    title: string
+    created_at: string
+    profiles: Array<{ username?: string; full_name?: string }> | { username?: string; full_name?: string } | null
+  }
   let recentActivity: Array<{ id: string; title: string; created_at: string; profiles: { username?: string; full_name?: string } | null }> = []
   try {
     const { data: posts } = await supabase
@@ -172,7 +178,12 @@ async function DashboardContent({ profile }: { profile: UserProfile | null }) {
       .eq('is_published', true)
       .order('created_at', { ascending: false })
       .limit(5)
-    recentActivity = posts ?? []
+    recentActivity = (posts ?? []).map((post: PostData) => ({
+      id: post.id,
+      title: post.title,
+      created_at: post.created_at,
+      profiles: Array.isArray(post.profiles) ? post.profiles[0] || null : post.profiles || null
+    }))
   } catch { recentActivity = [] }
 
   // Recent conversations preview
