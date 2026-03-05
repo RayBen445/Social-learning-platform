@@ -3,27 +3,12 @@
 import { useState } from 'react'
 import { LoadingScreen } from '@/components/loading-screen'
 import { LoadingSkeleton, CardLoadingSkeleton, GridLoadingSkeleton } from '@/components/loading-skeleton'
-import { LoadingButton } from '@/components/loading-button'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useLoading } from '@/components/loading-provider'
 
 export default function LoadingShowcase() {
   const [showFullScreen, setShowFullScreen] = useState(false)
   const [showSkeleton, setShowSkeleton] = useState(false)
-  const [isButtonLoading, setIsButtonLoading] = useState(false)
-  const { startLoading, stopLoading } = useLoading()
-
-  const handleButtonClick = async () => {
-    setIsButtonLoading(true)
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    setIsButtonLoading(false)
-  }
-
-  const handleGlobalLoading = () => {
-    startLoading('Processing your request...')
-    setTimeout(() => stopLoading(), 3000)
-  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -48,9 +33,6 @@ export default function LoadingShowcase() {
             <CardContent className="space-y-4">
               <Button onClick={() => setShowFullScreen(true)}>
                 Show Full-Screen Loading
-              </Button>
-              <Button variant="outline" onClick={handleGlobalLoading}>
-                Show Global Loading (3s)
               </Button>
               {showFullScreen && (
                 <LoadingScreen
@@ -107,54 +89,41 @@ export default function LoadingShowcase() {
             </CardContent>
           </Card>
 
-          {/* Loading Buttons */}
+          {/* Loading States Description */}
           <Card>
             <CardHeader>
-              <CardTitle>Loading Button</CardTitle>
+              <CardTitle>Loading Components</CardTitle>
               <CardDescription>
-                Button with built-in loading state animation
+                Pre-built components for handling loading states
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex flex-wrap gap-3">
-                <LoadingButton
-                  isLoading={isButtonLoading}
-                  loadingText="Submitting..."
-                  onClick={handleButtonClick}
-                >
-                  Click to Submit
-                </LoadingButton>
-
-                <LoadingButton
-                  isLoading={isButtonLoading}
-                  loadingText="Saving..."
-                  variant="outline"
-                  onClick={handleButtonClick}
-                >
-                  Save Changes
-                </LoadingButton>
-
-                <LoadingButton
-                  isLoading={isButtonLoading}
-                  loadingText="Creating..."
-                  variant="secondary"
-                  onClick={handleButtonClick}
-                >
-                  Create Post
-                </LoadingButton>
-
-                <LoadingButton
-                  isLoading={isButtonLoading}
-                  loadingText="Deleting..."
-                  variant="destructive"
-                  onClick={handleButtonClick}
-                >
-                  Delete
-                </LoadingButton>
+              <div className="space-y-3">
+                <div>
+                  <h3 className="font-semibold mb-1">LoadingScreen</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Full-page animated loading overlay with spinning logo, typing animation, bouncing dots, and progress bar.
+                  </p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">LoadingSkeleton</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Lightweight skeleton placeholder for content areas with smooth shimmer animation.
+                  </p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">CardLoadingSkeleton</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Skeleton for card-based layouts with title, description, and content placeholders.
+                  </p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">GridLoadingSkeleton</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Skeleton for grid layouts with multiple card items.
+                  </p>
+                </div>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Click any button to see the 2-second loading animation
-              </p>
             </CardContent>
           </Card>
 
@@ -168,20 +137,14 @@ export default function LoadingShowcase() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <h3 className="text-sm font-semibold">Global Loading</h3>
+                <h3 className="text-sm font-semibold">Full-Screen Loading</h3>
                 <pre className="bg-muted p-3 rounded text-xs overflow-auto">
-{`import { useLoading } from '@/components/loading-provider'
+{`import { LoadingScreen } from '@/components/loading-screen'
 
-const { startLoading, stopLoading } = useLoading()
-
-const handleClick = async () => {
-  startLoading('Loading posts...')
-  try {
-    const data = await fetch('/api/posts')
-  } finally {
-    stopLoading()
-  }
-}`}
+<LoadingScreen 
+  show={isLoading}
+  message="Loading your dashboard..."
+/>`}
                 </pre>
               </div>
 
@@ -202,19 +165,20 @@ export function Posts() {
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-sm font-semibold">Loading Button</h3>
+                <h3 className="text-sm font-semibold">Page Loading Hook</h3>
                 <pre className="bg-muted p-3 rounded text-xs overflow-auto">
-{`import { LoadingButton } from '@/components/loading-button'
+{`import { usePageTransition } from '@/hooks/use-page-transition'
 
-const [isLoading, setIsLoading] = useState(false)
-
-<LoadingButton
-  isLoading={isLoading}
-  loadingText="Submitting..."
-  onClick={handleSubmit}
->
-  Submit Form
-</LoadingButton>`}
+export function MyComponent() {
+  const { isLoading } = usePageTransition()
+  
+  return (
+    <>
+      {isLoading && <LoadingScreen show />}
+      <YourContent />
+    </>
+  )
+}`}
                 </pre>
               </div>
             </CardContent>
@@ -241,6 +205,52 @@ const [isLoading, setIsLoading] = useState(false)
                   <p className="text-xs text-muted-foreground">#10B981 - Emerald</p>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Animation Features */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Animation Features</CardTitle>
+              <CardDescription>
+                What makes LearnLoop's loading states exceptional
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <ul className="space-y-2 text-sm">
+                <li className="flex gap-2">
+                  <span className="text-primary font-semibold">•</span>
+                  <span>Spinning SVG Logo with 3-second rotation</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-primary font-semibold">•</span>
+                  <span>Orbital accent dots rotating in reverse direction</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-primary font-semibold">•</span>
+                  <span>Pulsing glow effect with indigo and emerald colors</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-primary font-semibold">•</span>
+                  <span>Character-by-character typing animation for messages</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-primary font-semibold">•</span>
+                  <span>Bouncing dots with staggered animation delay</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-primary font-semibold">•</span>
+                  <span>Animated progress bar showing 70% completion</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-primary font-semibold">•</span>
+                  <span>Backdrop blur effect for modal appearance</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-primary font-semibold">•</span>
+                  <span>Automatic dark/light theme adaptation</span>
+                </li>
+              </ul>
             </CardContent>
           </Card>
         </div>
