@@ -74,7 +74,7 @@ export default async function MessagesPage() {
 
   return (
     <Suspense fallback={<MessagesLoading />}>
-      <MessagesContent userProfile={userProfile} conversations={conversations} />
+      <MessagesContent userProfile={userProfile} conversations={conversations ?? []} />
     </Suspense>
   )
 }
