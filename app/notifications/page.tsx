@@ -66,7 +66,7 @@ export default async function NotificationsPage() {
     .order('created_at', { ascending: false })
     .limit(100)
 
-  const getNotificationMessage = (notification: any) => {
+  const getNotificationMessage = (notification: Notification) => {
     switch (notification.type) {
       case 'comment':
         return `commented on your post`
@@ -100,7 +100,7 @@ export default async function NotificationsPage() {
     }
   }
 
-  const getNotificationLink = (notification: any) => {
+  const getNotificationLink = (notification: Notification) => {
     if (notification.post_id) {
       return `/posts/${notification.post_id}`
     } else if (notification.actor_id) {
@@ -146,7 +146,7 @@ type UserProfile = {
 async function NotificationsContent({ userProfile, notifications }: { userProfile: UserProfile | null; notifications: Notification[] }) {
   return (
     <div className="min-h-screen bg-background">
-      <AppNavbar user={userProfile} />
+      <AppNavbar user={userProfile || undefined} />
       
       <div className="container mx-auto max-w-3xl py-10 px-4">
         <div className="space-y-6">
