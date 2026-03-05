@@ -1,8 +1,23 @@
 import { updateSession } from '@/lib/supabase/proxy'
-import { type NextRequest } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request)
+  const response = await updateSession(request)
+
+  // Add security headers
+  const headers = new Headers(response.headers)
+  headers.set('X-Content-Type-Options', 'nosniff')
+  headers.set('X-Frame-Options', 'DENY')
+  headers.set('X-XSS-Protection', '1; mode=block')
+  headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+
+  return NextResponse.json(
+    response.body,
+    {
+      status: response.status,
+      headers,
+    }
+  )
 }
 
 export const config = {

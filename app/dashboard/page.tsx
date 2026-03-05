@@ -82,33 +82,47 @@ export default async function DashboardPage() {
   )
 }
 
-async function DashboardContent({ profile }: { profile: any }) {
+type UserProfile = {
+  id: string
+  username?: string
+  full_name?: string
+  avatar_url?: string
+  bio?: string
+  institution?: string
+  level?: string
+  department?: string
+  total_posts?: number
+  reputation_points?: number
+  profiles?: unknown[]
+}
+
+async function DashboardContent({ profile }: { profile: UserProfile | null }) {
   const supabase = await createClient()
 
   // Enrolled courses
-  let userCourses: any[] = []
+  let userCourses: Array<{ id: string; code: string; title: string; department?: string }> = []
   try {
     const { data: cm } = await supabase
       .from('course_members')
       .select('courses(id, code, title, department)')
       .eq('user_id', profile?.id)
       .limit(6)
-    userCourses = (cm ?? []).map((m: any) => m.courses).filter(Boolean)
+    userCourses = (cm ?? []).map((m: { courses: unknown }) => m.courses).filter(Boolean)
   } catch { userCourses = [] }
 
   // Groups
-  let userGroups: any[] = []
+  let userGroups: Array<{ id: string; name: string; group_type?: string }> = []
   try {
     const { data: gm } = await supabase
       .from('group_members')
       .select('groups(id, name, group_type)')
       .eq('user_id', profile?.id)
       .limit(4)
-    userGroups = (gm ?? []).map((m: any) => m.groups).filter(Boolean)
+    userGroups = (gm ?? []).map((m: { groups: unknown }) => m.groups).filter(Boolean)
   } catch { userGroups = [] }
 
   // Recent posts (school-scoped activity placeholder)
-  let recentActivity: any[] = []
+  let recentActivity: Array<{ id: string; title: string; created_at: string; profiles: { username?: string; full_name?: string } | null }> = []
   try {
     const { data: posts } = await supabase
       .from('posts')
@@ -120,7 +134,7 @@ async function DashboardContent({ profile }: { profile: any }) {
   } catch { recentActivity = [] }
 
   // Recent conversations preview
-  let conversations: any[] = []
+  let conversations: Array<{ id: string; last_message: string; last_message_at: string; participants: Array<{ profiles: { username?: string; full_name?: string; avatar_url?: string } | null }> }> = []
   try {
     const { data: convs } = await supabase
       .from('conversations')
@@ -239,7 +253,7 @@ async function DashboardContent({ profile }: { profile: any }) {
               <CardContent>
                 {userCourses.length > 0 ? (
                   <ul className="space-y-2">
-                    {userCourses.map((course: any) => (
+                    {userCourses.map((course: { id: string; code: string; title: string; department?: string }) => (
                       <li key={course.id} className="flex items-center justify-between rounded-md border px-3 py-2">
                         <div className="flex items-center gap-3 min-w-0">
                           <span className="shrink-0 rounded bg-primary/10 px-2 py-0.5 text-xs font-mono font-semibold text-primary">
@@ -278,7 +292,7 @@ async function DashboardContent({ profile }: { profile: any }) {
               <CardContent>
                 {recentActivity.length > 0 ? (
                   <ul className="space-y-2">
-                    {recentActivity.map((post: any) => {
+                    {recentActivity.map((post: { id: string; title: string; created_at: string; profiles: { username?: string; full_name?: string } | null }) => {
                       const author = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles
                       return (
                         <li key={post.id}>
@@ -353,7 +367,7 @@ async function DashboardContent({ profile }: { profile: any }) {
               <CardContent className="space-y-3">
                 {conversations.length > 0 ? (
                   <>
-                    {conversations.map((conv: any) => {
+                    {conversations.map((conv: { id: string; last_message: string; last_message_at: string; participants: Array<{ profiles: { username?: string; full_name?: string; avatar_url?: string } | null }> }) => {
                       const participants: any[] = (conv.participants ?? [])
                         .map((p: any) => (Array.isArray(p.profiles) ? p.profiles[0] : p.profiles))
                         .filter((p: any) => p && p.username !== profile?.username)
@@ -400,7 +414,7 @@ async function DashboardContent({ profile }: { profile: any }) {
               <CardContent className="space-y-2">
                 {userGroups.length > 0 ? (
                   <>
-                    {userGroups.map((group: any) => (
+                    {userGroups.map((group: { id: string; name: string; group_type?: string }) => (
                       <div key={group.id} className="flex items-center justify-between">
                         <span className="text-xs truncate font-medium">{group.name}</span>
                         {group.group_type && (

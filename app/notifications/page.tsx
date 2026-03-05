@@ -116,7 +116,34 @@ export default async function NotificationsPage() {
   )
 }
 
-async function NotificationsContent({ userProfile, notifications }: { userProfile: any; notifications: any }) {
+type Notification = {
+  id: string
+  type: string
+  actor_id: string
+  post_id?: string
+  is_read: boolean
+  created_at: string
+  message?: string
+  actor?: {
+    id: string
+    username: string
+    full_name?: string
+    avatar_url?: string
+    is_verified?: boolean
+  }
+  post?: {
+    id: string
+    title: string
+  }
+}
+
+type UserProfile = {
+  username?: string
+  full_name?: string
+  avatar_url?: string
+}
+
+async function NotificationsContent({ userProfile, notifications }: { userProfile: UserProfile | null; notifications: Notification[] }) {
   return (
     <div className="min-h-screen bg-background">
       <AppNavbar user={userProfile} />
@@ -143,7 +170,7 @@ async function NotificationsContent({ userProfile, notifications }: { userProfil
           {/* Notifications List */}
           {notifications && notifications.length > 0 ? (
             <div className="space-y-2">
-              {notifications.map((notification: any) => (
+              {notifications.map((notification: Notification) => (
                 <Link key={notification.id} href={getNotificationLink(notification)}>
                   <Card className={`hover:bg-muted/50 cursor-pointer transition ${
                     !notification.is_read ? 'border-primary bg-primary/5' : ''

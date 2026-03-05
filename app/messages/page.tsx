@@ -79,7 +79,31 @@ export default async function MessagesPage() {
   )
 }
 
-async function MessagesContent({ userProfile, conversations }: { userProfile: any; conversations: any }) {
+type ConversationData = {
+  id: string
+  user_one_id: string
+  user_two_id: string
+  updated_at: string
+  other_user?: {
+    id: string
+    username: string
+    full_name?: string
+    avatar_url?: string
+  }
+  latest_message?: Array<{
+    content: string
+    created_at: string
+    is_read: boolean
+  }>
+}
+
+type UserProfile = {
+  username?: string
+  full_name?: string
+  avatar_url?: string
+}
+
+async function MessagesContent({ userProfile, conversations }: { userProfile: UserProfile | null; conversations: ConversationData[] }) {
   return (
     <div className="min-h-screen bg-background">
       <AppNavbar user={userProfile} />
@@ -98,7 +122,7 @@ async function MessagesContent({ userProfile, conversations }: { userProfile: an
           {/* Conversations List */}
           {conversations && conversations.length > 0 ? (
             <div className="space-y-3">
-              {conversations.map((convo: any) => {
+              {conversations.map((convo: ConversationData) => {
                 const formatted = formatConversation(convo)
                 return (
                   <Link

@@ -60,7 +60,7 @@ export default function AppearanceSettingsPage() {
     )
   }
 
-  const ThemeBtn = ({ value, icon: Icon, label }: { value: string; icon: any; label: string }) => (
+  const ThemeBtn = ({ value, icon: Icon, label }: { value: string; icon: React.ComponentType<{ className?: string }>; label: string }) => (
     <button
       onClick={() => setTheme(value)}
       className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-colors flex-1 ${
