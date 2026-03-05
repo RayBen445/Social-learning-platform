@@ -111,7 +111,7 @@ export default async function NotificationsPage() {
 
   return (
     <Suspense fallback={<NotificationsLoading />}>
-      <NotificationsContent userProfile={userProfile} notifications={notifications} />
+      <NotificationsContent userProfile={userProfile} notifications={notifications ?? []} />
     </Suspense>
   )
 }
