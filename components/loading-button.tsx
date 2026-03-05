@@ -7,7 +7,6 @@ interface LoadingButtonProps extends ButtonProps {
   isLoading?: boolean
   loadingText?: string
   children: ReactNode
-  onClick?: () => void | Promise<void>
 }
 
 export function LoadingButton({
@@ -15,13 +14,11 @@ export function LoadingButton({
   loadingText = 'Loading...',
   disabled,
   children,
-  onClick,
   ...props
 }: LoadingButtonProps) {
   return (
     <Button
       disabled={isLoading || disabled}
-      onClick={onClick}
       {...props}
     >
       {isLoading ? (
