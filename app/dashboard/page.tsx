@@ -103,6 +103,12 @@ type CourseData = {
   department?: string
 }
 
+type GroupData = {
+  id: string
+  name: string
+  group_type?: string
+}
+
 type ConversationData = {
   id: string
   last_message: string
