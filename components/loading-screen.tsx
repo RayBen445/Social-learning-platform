@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Image from 'next/image'
 
 interface LoadingScreenProps {
   message?: string
@@ -76,17 +75,39 @@ export function LoadingScreen({ message = 'Loading LearnLoop...', show = true }:
           {/* Outer glow ring */}
           <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/20 to-accent/20 blur-xl animate-pulse-glow"></div>
 
-          {/* Logo with spin animation */}
+          {/* SVG Logo with spin animation */}
           <div className="relative animate-spin-slow">
             <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-primary to-accent opacity-0 blur-md"></div>
-            <Image
-              src="/images/learnloop-logo.jpg"
-              alt="LearnLoop"
-              width={120}
-              height={120}
-              className="relative z-10 rounded-lg shadow-2xl border-2 border-primary/30"
-              priority
-            />
+            <div className="relative z-10 rounded-lg shadow-2xl border-2 border-primary/30 p-3 bg-gradient-to-br from-primary/10 to-accent/10">
+              <svg
+                width="120"
+                height="120"
+                viewBox="0 0 120 120"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-full h-full"
+              >
+                {/* Background circle */}
+                <circle cx="60" cy="60" r="58" fill="#f0f4ff" stroke="#4F46E5" strokeWidth="2" />
+                
+                {/* Loop symbol - curved lines forming continuous loop */}
+                <g stroke="#4F46E5" strokeWidth="3" fill="none" strokeLinecap="round">
+                  {/* Left curve */}
+                  <path d="M 30 60 Q 20 40 30 20 Q 40 10 50 20" />
+                  {/* Right curve */}
+                  <path d="M 90 60 Q 100 40 90 20 Q 80 10 70 20" />
+                  {/* Bottom connecting */}
+                  <path d="M 50 85 Q 60 95 70 85" />
+                </g>
+                
+                {/* Center accent dot */}
+                <circle cx="60" cy="60" r="5" fill="#10B981" opacity="0.8" />
+                
+                {/* Decorative accent dots */}
+                <circle cx="40" cy="40" r="3" fill="#10B981" opacity="0.5" />
+                <circle cx="80" cy="40" r="3" fill="#10B981" opacity="0.5" />
+              </svg>
+            </div>
           </div>
 
           {/* Rotating dots around logo */}
