@@ -1,7 +1,7 @@
 'use client'
 
 import { BadgeCheck, Clock } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { motion, easeInOut } from 'framer-motion'
 import {
   Tooltip,
   TooltipContent,
@@ -30,7 +30,7 @@ const badgeVariants = {
     transition: {
       duration: 2,
       repeat: Infinity,
-      ease: 'easeInOut',
+      ease: easeInOut,
     },
   },
   shimmer: {
@@ -42,7 +42,7 @@ const badgeVariants = {
     transition: {
       duration: 2,
       repeat: Infinity,
-      ease: 'easeInOut',
+      ease: easeInOut,
     },
   },
   bounce: {
@@ -50,7 +50,7 @@ const badgeVariants = {
     transition: {
       duration: 2,
       repeat: Infinity,
-      ease: 'easeInOut',
+      ease: easeInOut,
     },
   },
 }
