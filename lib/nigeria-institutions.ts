@@ -15,10 +15,10 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Michael Okpara University of Agriculture, Umudike',
     'Gregory University, Uturu',
     'Abia State Polytechnic, Aba',
-    'Institute of Management and Technology (IMT), Enugu',
     'Clifford University, Aba',
     'Federal Polytechnic, Bende',
-    'Abia State Polytechnic, Aba',
+    'Abia College of Education, Arochukwu',
+    'Abia College of Education, Uturu',
   ],
   Adamawa: [
     'Modibbo Adama University, Yola',
@@ -27,16 +27,18 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Adamawa State Polytechnic, Yola',
     'Federal Polytechnic, Mubi',
     'Federal Polytechnic, Yola',
-    'Adamawa State Polytechnic, Jalingo',
+    'Adamawa State College of Education, Yola',
+    'Adamawa State College of Education, Mubi',
   ],
   'Akwa Ibom': [
     'University of Uyo (UNIUYO)',
     'Akwa Ibom State University, Ikot Akpaden',
     'Ritman University, Ikot Ekpene',
     'Heritage Polytechnic, Eket',
-    'Abia State Polytechnic, Aba',
     'Akwa Ibom State Polytechnic, Ikot Osurua',
     'Essien Udim Polytechnic',
+    'Akwa Ibom State College of Education, Oron',
+    'Akwa Ibom State College of Education, Esman',
   ],
   Anambra: [
     'Nnamdi Azikiwe University (UNIZIK), Awka',
@@ -45,8 +47,8 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Madonna University, Okija',
     'Anambra State Polytechnic, Mgbakwu',
     'Anambra State University, Uli',
-    'Micheal Okpara University, Nsukka',
-    'Caritas University, Enugu',
+    'College of Education, Nsugbe',
+    'Anambra State College of Education, Awka',
   ],
   Bauchi: [
     'Abubakar Tafawa Balewa University (ATBU), Bauchi',
@@ -54,6 +56,8 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Bauchi State Polytechnic, Bauchi',
     'Federal Polytechnic, Bauchi',
     'Bauchi State University of Science and Technology',
+    'Bauchi College of Education, Bauchi',
+    'Bauchi College of Education, Azare',
   ],
   Bayelsa: [
     'Niger Delta University, Wilberforce Island',
@@ -61,6 +65,7 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Isaac Jasper Boro College of Education, Sagbama',
     'Bayelsa State Polytechnic, Aleibiri',
     'Bayelsa State University, Yenagoa',
+    'Bayelsa College of Education, Sagbama',
   ],
   Benue: [
     'Joseph Sarwuan Tarka University, Makurdi (JOSTUM)',
@@ -69,6 +74,8 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Benue State Polytechnic, Ugbokolo',
     'Federal Polytechnic, Idah',
     'Benue State Polytechnic, Makurdi',
+    'Benue State College of Education, Makurdi',
+    'College of Education, Katsina-Ala',
   ],
   Borno: [
     'University of Maiduguri (UNIMAID)',
@@ -76,6 +83,8 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Ramat Polytechnic, Maiduguri',
     'Federal Polytechnic, Maiduguri',
     'Borno State Polytechnic',
+    'Borno State College of Education, Maiduguri',
+    'Kashim Ibrahim College of Education, Maiduguri',
   ],
   'Cross River': [
     'University of Calabar (UNICAL)',
@@ -84,6 +93,8 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Cross River State Polytechnic, Calabar',
     'Federal Polytechnic, Obudu',
     'Cross River University, Calabar',
+    'College of Education, Calabar',
+    'College of Education, Obudu',
   ],
   Delta: [
     'Delta State University, Abraka (DELSU)',
@@ -94,6 +105,8 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Delta State Polytechnic, Ozoro',
     'Federal Polytechnic, Otele',
     'Federal Polytechnic, Ekowe',
+    'Delta State College of Education, Asaba',
+    'Delta State College of Education, Agbor',
   ],
   Ebonyi: [
     'Ebonyi State University, Abakaliki (EBSU)',
@@ -101,6 +114,7 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'David Umahi Federal University of Health Sciences, Uburu',
     'Ebonyi State Polytechnic, Abakaliki',
     'Ebonyi State University, Abakaliki',
+    'Ebonyi State College of Education, Ikwo',
   ],
   Edo: [
     'University of Benin (UNIBEN)',
@@ -111,6 +125,8 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Edo State University, Uzairue',
     'Edo State Polytechnic, Urechie',
     'Federal Polytechnic, Auchi',
+    'College of Education, Benin City',
+    'Edo College of Education, Igueben',
   ],
   Ekiti: [
     'Ekiti State University (EKSU), Ado-Ekiti',
@@ -119,6 +135,8 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Bamidele Olumilua University of Education, Science & Technology, Ikere-Ekiti',
     'Ekiti State Polytechnic, Isan-Ekiti',
     'Federal Polytechnic, Ire',
+    'Ekiti State College of Education, Ikole-Ekiti',
+    'Ekiti State University College of Education, Ado-Ekiti',
   ],
   Enugu: [
     'University of Nigeria, Nsukka (UNN)',
@@ -129,6 +147,8 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Institute of Management and Technology (IMT), Enugu',
     'Enugu State Polytechnic, Enugu',
     'Federal Polytechnic, Onitsha',
+    'College of Education, Enugu',
+    'Federal College of Education, Enugu',
   ],
   'FCT (Abuja)': [
     'University of Abuja (UNIABUJA)',
@@ -138,7 +158,9 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'African University of Science & Technology (AUST), Abuja',
     'Abubakar Ibrahim Tafawa Balewa University, Abuja',
     'Federal University of Technology, Minna (FUTMINNA)',
-    'Covenant University, Ogun',
+    'Federal College of Education, Zuba',
+    'Federal College of Education, Abeokuta',
+    'FCT College of Education, Abuja',
   ],
   Gombe: [
     'Federal University of Kashere, Gombe',
@@ -146,6 +168,8 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Gombe State University of Science and Technology, Kumo',
     'Gombe State Polytechnic, Gombe',
     'Federal Polytechnic, Gombe',
+    'Gombe State College of Education, Gombe',
+    'Gombe College of Education, Bajoga',
   ],
   Imo: [
     'Imo State University, Owerri (IMSU)',
@@ -154,6 +178,8 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Imo State Polytechnic, Umuagwo',
     'Owerri Polytechnic',
     'Alvan Ikoku Federal College of Education, Owerri',
+    'Federal College of Education (Technical), Omuma',
+    'Imo State College of Education, Ihitte-Uboma',
   ],
   Jigawa: [
     'Sule Lamido University, Kafin Hausa',
@@ -161,6 +187,8 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Jigawa State Polytechnic, Dutse',
     'Federal Polytechnic, Azare',
     'Jigawa State University, Kafin Hausa',
+    'Jigawa State College of Education, Gumel',
+    'Jigawa College of Education, Dutse',
   ],
   Kaduna: [
     'Ahmadu Bello University, Zaria (ABU)',
@@ -170,6 +198,8 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Nuhu Bamalli Polytechnic, Zaria',
     'Kaduna State Polytechnic',
     'Federal College of Education, Zaria',
+    'College of Education, Gidan Waya',
+    'Kaduna State College of Education, Kafanchan',
   ],
   Kano: [
     'Bayero University, Kano (BUK)',
@@ -178,6 +208,8 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Kano State Polytechnic, Kano',
     'Federal Polytechnic, Kano',
     'Abubakar Tatanaki College of Education',
+    'Kano State College of Education and Preliminary Studies (KACES)',
+    'Federal College of Education (Technical), Bichi',
   ],
   Katsina: [
     'Federal University Dutsin-Ma, Katsina',
@@ -185,12 +217,16 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Hassan Usman Katsina Polytechnic, Katsina',
     'Federal Polytechnic, Katsina',
     'Katsina State Polytechnic',
+    'Katsina State College of Education, Katsina',
+    'Katsina College of Education, Daura',
   ],
   Kebbi: [
     'Kebbi State University of Science & Technology, Aliero (KSUSTA)',
     'Federal University Birnin Kebbi',
     'Kebbi State Polytechnic, Birnin Kebbi',
     'Federal Polytechnic, Kebbi',
+    'Kebbi College of Education, Argungu',
+    'Kebbi State College of Education, Birnin Kebbi',
   ],
   Kogi: [
     'Kogi State University, Anyigba',
@@ -198,6 +234,8 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Confluence University of Science & Technology, Osara',
     'Kogi State Polytechnic, Lokoja',
     'Federal Polytechnic, Itakpe',
+    'Kogi State College of Education, Ankpa',
+    'College of Education, Idah',
   ],
   Kwara: [
     'University of Ilorin (UNILORIN)',
@@ -206,6 +244,8 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Landmark University, Omu-Aran',
     'Kwara State Polytechnic, Ilorin',
     'Federal Polytechnic, Offa',
+    'College of Education, Ilorin',
+    'Kwara State College of Education, Oro',
   ],
   Lagos: [
     'University of Lagos (UNILAG), Lagos',
@@ -215,8 +255,9 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Lagos State University of Science and Technology (LASUSTECH), Ikorodu',
     'Yaba College of Technology (YABATECH), Lagos',
     'The Polytechnic, Lagos',
-    'Auchi Polytechnic',
     'Lagos City University, Lagos',
+    'Federal College of Education (Technical), Lagos',
+    'College of Education, Agbado-Oke Aro',
   ],
   Nasarawa: [
     'Nasarawa State University, Keffi',
@@ -224,6 +265,8 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Nasarawa State Polytechnic, Lafia',
     'Federal Polytechnic, Nasarawa',
     'Nasarawa State Polytechnic, Keffi',
+    'Nasarawa State College of Education, Akwanga',
+    'College of Education, Lafia',
   ],
   Niger: [
     'Federal University of Technology, Minna (FUTMINNA)',
@@ -231,6 +274,8 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Niger State University, Minna (NSUK)',
     'Niger State Polytechnic, Zungeru',
     'Federal Polytechnic, Bida',
+    'Niger State College of Education, Minna',
+    'Niger State College of Education, Bida',
   ],
   Ogun: [
     'Olabisi Onabanjo University, Ago-Iwoye (OOU)',
@@ -241,6 +286,8 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Moshood Abiola Polytechnic, Abeokuta',
     'Ogun State Polytechnic, Abeokuta',
     'Federal Polytechnic, Ilaro',
+    'Ogun State College of Education, Abeokuta',
+    'College of Education, Ijebu-Ode',
   ],
   Ondo: [
     'Federal University of Technology, Akure (FUTA)',
@@ -250,6 +297,8 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Ondo State University, Ondo',
     'Ondo State Polytechnic, Owo',
     'Federal Polytechnic, Ilaro',
+    'Ondo State College of Education, Akure',
+    'Ondo College of Education, Ilesha-Baruba',
   ],
   Osun: [
     'Obafemi Awolowo University, Ile-Ife (OAU)',
@@ -259,6 +308,7 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Osun State Polytechnic, Iree',
     'Federal Polytechnic, Ilesa',
     'Osun College of Education',
+    'Federal College of Education, Osun',
   ],
   Oyo: [
     'University of Ibadan (UI)',
@@ -268,6 +318,8 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Emmanuel Alayande University of Education, Oyo',
     'Oyo State Polytechnic, Ibadan',
     'Federal Polytechnic, Oyo',
+    'Oyo State College of Education, Oyo',
+    'College of Education, Lanlate',
   ],
   Plateau: [
     'University of Jos (UNIJOS)',
@@ -275,6 +327,8 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Plateau State Polytechnic, Barkin Ladi',
     'Federal Polytechnic, Jos',
     'Plateau State Polytechnic',
+    'Plateau State College of Education, Jos',
+    'Federal College of Education, Pankshin',
   ],
   Rivers: [
     'University of Port Harcourt (UNIPORT)',
@@ -283,24 +337,32 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Captain Elechi Amadi Polytechnic, Port Harcourt',
     'Rivers State Polytechnic, Bori',
     'Federal Polytechnic, Orogun',
+    'College of Education, Port Harcourt',
+    'Rivers State College of Education, Rumueme',
   ],
   Sokoto: [
     'Usmanu Danfodiyo University, Sokoto (UDUS)',
     'Sokoto State University, Sokoto',
     'Sokoto State Polytechnic, Sokoto',
     'Federal Polytechnic, Sokoto',
+    'Sokoto State College of Education, Sokoto',
+    'College of Education, Gusau (Zamfara)',
   ],
   Taraba: [
     'Taraba State University, Jalingo',
     'Federal University Wukari, Wukari',
     'Taraba State Polytechnic, Suntai',
     'Federal Polytechnic, Taraba',
+    'Taraba College of Education, Jalingo',
+    'College of Education, Zing',
   ],
   Yobe: [
     'Federal University Gashua, Gashua',
     'Yobe State University, Damaturu',
     'Yobe State Polytechnic, Damaturu',
     'Federal Polytechnic, Gashua',
+    'Yobe State College of Education, Gashua',
+    'Yobe College of Education, Damaturu',
   ],
   Zamfara: [
     'Federal University Gusau, Gusau',
@@ -308,5 +370,6 @@ export const INSTITUTIONS_BY_STATE: Record<string, string[]> = {
     'Zamfara State College of Education, Maru',
     'Zamfara State Polytechnic, Gusau',
     'Federal Polytechnic, Kaura-Namoda',
+    'Zamfara College of Education, Talata Mafara',
   ],
 }
