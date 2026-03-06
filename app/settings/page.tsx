@@ -1,0 +1,114 @@
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+import { AppNavbar } from '@/components/app-navbar'
+import { Card, CardContent } from '@/components/ui/card'
+import Link from 'next/link'
+import { ProfileCompletionBar } from '@/components/profile-completion-bar'
+import { computeProfileCompletion } from '@/lib/profile-completion'
+import { User, Shield, ChevronRight, KeyRound, GraduationCap, Bell, MessageSquare, Palette } from 'lucide-react'
+
+export default async function SettingsPage() {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect('/auth/login')
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('username, full_name, avatar_url, institution, department, level, is_verified')
+    .eq('id', user.id)
+    .single()
+
+  const completion = computeProfileCompletion(profile ?? {})
+
+  const sections = [
+    {
+      href: '/settings/profile',
+      icon: User,
+      title: 'Profile',
+      description: 'Update your name, bio, avatar, location, and website',
+    },
+    {
+      href: '/settings/privacy',
+      icon: Shield,
+      title: 'Privacy & Safety',
+      description: 'Manage blocked users, muted accounts, and messaging preferences',
+    },
+    {
+      href: '/settings/account',
+      icon: KeyRound,
+      title: 'Account',
+      description: 'Username, email, password, and device sessions',
+    },
+    {
+      href: '/settings/academic',
+      icon: GraduationCap,
+      title: 'Academic & Verification',
+      description: 'Institution, department, level, and verification status',
+    },
+    {
+      href: '/settings/notifications',
+      icon: Bell,
+      title: 'Notifications',
+      description: 'Manage push, email, and in-app notification preferences',
+    },
+    {
+      href: '/settings/messaging',
+      icon: MessageSquare,
+      title: 'Messaging',
+      description: 'Message requests, group invites, and file downloads',
+    },
+    {
+      href: '/settings/appearance',
+      icon: Palette,
+      title: 'Appearance',
+      description: 'View density, font size, and theme',
+    },
+  ]
+
+  return (
+    <div className="min-h-screen bg-background">
+      <AppNavbar user={profile ?? undefined} />
+
+      <div className="container mx-auto max-w-2xl py-10 px-4">
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold">Settings</h1>
+            <p className="text-muted-foreground">Manage your account preferences</p>
+          </div>
+
+          {/* Profile completion bar */}
+          <ProfileCompletionBar
+            percent={completion.percent}
+            steps={completion.steps}
+            isComplete={completion.isComplete}
+          />
+
+          <div className="space-y-3">
+            {sections.map(({ href, icon: Icon, title, description }) => (
+              <Link key={href} href={href}>
+                <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+                  <CardContent className="flex items-center gap-4 py-5">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 flex-shrink-0">
+                      <Icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="flex-grow">
+                      <p className="font-semibold">{title}</p>
+                      <p className="text-sm text-muted-foreground">{description}</p>
+                    </div>
+                    <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

@@ -62,27 +62,50 @@ export default async function MessagesPage() {
     .order('updated_at', { ascending: false })
     .limit(50)
 
-  const formatConversation = (convo: any) => {
-    const isUserOne = convo.user_one_id === user.id
+  return (
+    <Suspense fallback={<MessagesLoading />}>
+      <MessagesContent userProfile={userProfile} conversations={conversations ?? []} />
+    </Suspense>
+  )
+}
+
+type ConversationData = {
+  id: string
+  user_one_id: string
+  user_two_id: string
+  updated_at: string
+  other_user?: {
+    id: string
+    username: string
+    full_name?: string
+    avatar_url?: string
+  }
+  latest_message?: Array<{
+    content: string
+    created_at: string
+    is_read: boolean
+  }>
+}
+
+type UserProfile = {
+  username?: string
+  full_name?: string
+  avatar_url?: string
+}
+
+async function MessagesContent({ userProfile, conversations }: { userProfile: UserProfile | null; conversations: ConversationData[] }) {
+  const formatConversation = (convo: ConversationData) => {
     return {
       id: convo.id,
-      otherUser: isUserOne ? convo.other_user : convo.other_user,
+      otherUser: convo.other_user,
       lastMessage: convo.latest_message?.[0],
       updatedAt: convo.updated_at,
     }
   }
 
   return (
-    <Suspense fallback={<MessagesLoading />}>
-      <MessagesContent userProfile={userProfile} conversations={conversations} />
-    </Suspense>
-  )
-}
-
-async function MessagesContent({ userProfile, conversations }: { userProfile: any; conversations: any }) {
-  return (
     <div className="min-h-screen bg-background">
-      <AppNavbar user={userProfile} />
+      <AppNavbar user={userProfile || undefined} />
       
       <div className="container mx-auto max-w-4xl py-10 px-4">
         <div className="space-y-6">
@@ -98,7 +121,7 @@ async function MessagesContent({ userProfile, conversations }: { userProfile: an
           {/* Conversations List */}
           {conversations && conversations.length > 0 ? (
             <div className="space-y-3">
-              {conversations.map((convo: any) => {
+              {conversations.map((convo: ConversationData) => {
                 const formatted = formatConversation(convo)
                 return (
                   <Link

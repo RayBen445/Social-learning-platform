@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { useState } from 'react'
 import { Search } from 'lucide-react'
+import { PublicNavbar } from '@/components/public-navbar'
 
 const FAQData = [
   {
@@ -104,6 +105,7 @@ export default function HelpPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <PublicNavbar />
       <div className="mx-auto max-w-4xl px-4 py-12">
         <Link href="/">
           <Button variant="ghost" className="mb-8">← Back to Home</Button>

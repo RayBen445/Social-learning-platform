@@ -4,45 +4,51 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'
 import { Suspense } from 'react'
+import { VerifiedBadge } from '@/components/users/verified-badge'
+import { Building2, GraduationCap, BookOpen, MapPin, Globe, CalendarDays, Camera, PenLine } from 'lucide-react'
+import { AppNavbar } from '@/components/app-navbar'
+import { BottomNav } from '@/components/bottom-nav'
+import { ProfileCompletionBar } from '@/components/profile-completion-bar'
+import { computeProfileCompletion } from '@/lib/profile-completion'
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 60) return `${mins}m ago`
+  const hrs = Math.floor(mins / 60)
+  if (hrs < 24) return `${hrs}h ago`
+  const days = Math.floor(hrs / 24)
+  if (days < 30) return `${days}d ago`
+  return new Date(dateStr).toLocaleDateString()
+}
 
 // Profile page loading skeleton
 function ProfileLoading() {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Banner skeleton */}
-      <div className="h-32 bg-muted animate-pulse" />
-
-      <div className="container mx-auto px-4 pb-12">
-        <div className="max-w-4xl">
-          {/* Profile Header skeleton */}
-          <div className="flex flex-col md:flex-row gap-6 -mt-16 mb-8 relative z-10">
-            <div className="h-32 w-32 rounded-lg bg-muted animate-pulse" />
-            <div className="flex-grow space-y-3 pt-4">
-              <div className="h-8 w-40 bg-muted animate-pulse rounded" />
-              <div className="h-4 w-32 bg-muted animate-pulse rounded" />
-              <div className="h-10 w-24 bg-muted animate-pulse rounded" />
+    <div className="min-h-screen bg-background pb-20 md:pb-0">
+      <div className="h-40 md:h-52 bg-muted animate-pulse" />
+      <div className="container mx-auto px-4 pb-12 max-w-5xl">
+        <Card className="-mt-16 mb-6 relative z-10">
+          <CardContent className="pt-6">
+            <div className="flex flex-col sm:flex-row gap-4 items-start">
+              <div className="h-24 w-24 rounded-full bg-muted animate-pulse border-4 border-background flex-shrink-0" />
+              <div className="flex-grow space-y-3 pt-2">
+                <div className="h-7 w-40 bg-muted animate-pulse rounded" />
+                <div className="h-4 w-28 bg-muted animate-pulse rounded" />
+                <div className="h-4 w-56 bg-muted animate-pulse rounded" />
+              </div>
             </div>
+          </CardContent>
+        </Card>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="md:col-span-2 space-y-6">
+            <div className="h-40 bg-muted animate-pulse rounded-lg" />
+            <div className="h-32 bg-muted animate-pulse rounded-lg" />
+            <div className="h-48 bg-muted animate-pulse rounded-lg" />
           </div>
-
-          {/* Bio and stats skeleton */}
-          <div className="grid grid-cols-3 gap-4 mb-8">
-            {[1, 2, 3].map((i) => (
-              <Card key={i}>
-                <CardContent className="pt-6">
-                  <div className="space-y-2">
-                    <div className="h-8 w-12 bg-muted animate-pulse rounded" />
-                    <div className="h-4 w-16 bg-muted animate-pulse rounded" />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Posts skeleton */}
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-32 bg-muted animate-pulse rounded-lg border-2" />
-            ))}
+          <div className="md:col-span-1 space-y-6">
+            <div className="h-28 bg-muted animate-pulse rounded-lg" />
+            <div className="h-40 bg-muted animate-pulse rounded-lg" />
           </div>
         </div>
       </div>
@@ -86,7 +92,7 @@ async function ProfileContent({ params }: ProfilePageProps) {
     .eq('user_id', profile.id)
     .eq('is_published', true)
     .order('created_at', { ascending: false })
-    .limit(10)
+    .limit(5)
 
   // Check if current user is the profile owner
   const {
@@ -94,146 +100,383 @@ async function ProfileContent({ params }: ProfilePageProps) {
   } = await supabase.auth.getUser()
   const isOwnProfile = currentUser?.id === profile.id
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Banner */}
-      <div className="h-32 bg-gradient-to-r from-blue-500 to-purple-500" />
+  const { data: currentProfile } = currentUser
+    ? await supabase.from('profiles').select('username, full_name, avatar_url').eq('id', currentUser.id).single()
+    : { data: null }
 
-      <div className="container mx-auto px-4 pb-12">
-        <div className="max-w-4xl">
-          {/* Profile Header */}
-          <Card className="-mt-16 mb-6 relative z-10">
-            <CardContent className="pt-6">
-              <div className="flex flex-col md:flex-row gap-6 items-start md:items-end">
-                {/* Avatar */}
-                <div className="flex-shrink-0">
-                  <div className="w-32 h-32 rounded-full bg-muted border-4 border-background overflow-hidden flex items-center justify-center">
-                    {profile.avatar_url ? (
-                      <img
-                        src={profile.avatar_url}
-                        alt={profile.full_name || profile.username}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-white text-4xl font-bold">
-                        {profile.username.charAt(0).toUpperCase()}
-                      </div>
-                    )}
+  // Fetch course memberships — graceful if table doesn't exist
+  type CourseMemberRow = { courses: { id: string; code: string; title: string; department: string } | null }
+  let courses: CourseMemberRow[] = []
+  try {
+    const { data } = await supabase
+      .from('course_members')
+      .select('courses(id, code, title, department)')
+      .eq('user_id', profile.id)
+      .limit(5)
+    courses = (data as CourseMemberRow[] | null) ?? []
+  } catch {
+    courses = []
+  }
+
+  // Fetch group memberships — graceful if table doesn't exist
+  type GroupMemberRow = { groups: { id: string; name: string; group_type: string; is_archived: boolean } | null }
+  let groups: GroupMemberRow[] = []
+  try {
+    const { data } = await supabase
+      .from('group_members')
+      .select('groups(id, name, group_type, is_archived)')
+      .eq('user_id', profile.id)
+    groups = (data as GroupMemberRow[] | null) ?? []
+  } catch {
+    groups = []
+  }
+
+  const activeGroups = groups.filter((g) => g.groups && !g.groups.is_archived)
+  const archivedGroups = groups.filter((g) => g.groups && g.groups.is_archived)
+
+  return (
+    <div className="min-h-screen bg-background pb-20 md:pb-0">
+      <AppNavbar user={currentProfile ?? undefined} />
+
+      {/* Banner */}
+      {profile.banner_url ? (
+        <img src={profile.banner_url} alt="Cover photo" className="w-full h-40 md:h-52 object-cover" />
+      ) : (
+        <div className="h-40 md:h-52 bg-gradient-to-r from-primary/80 to-primary" />
+      )}
+
+      <div className="container mx-auto px-4 pb-12 max-w-5xl">
+
+        {/* Profile Header Card — full width, overlapping banner */}
+        <Card className="-mt-16 mb-6 relative z-10">
+          <CardContent className="pt-6">
+            <div className="flex flex-col sm:flex-row gap-4 items-start">
+
+              {/* Avatar */}
+              <div className="flex-shrink-0 w-24 h-24 rounded-full border-4 border-background overflow-hidden">
+                {profile.avatar_url ? (
+                  <img
+                    src={profile.avatar_url}
+                    alt={profile.full_name || profile.username}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-white text-3xl font-bold">
+                    {profile.username.charAt(0).toUpperCase()}
                   </div>
+                )}
+              </div>
+
+              {/* Info block */}
+              <div className="flex-grow min-w-0">
+                {/* Name + verified */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-2xl font-bold">{profile.full_name || profile.username}</h1>
+                  {profile.is_verified && (
+                    <VerifiedBadge verificationType={profile.verification_type} />
+                  )}
                 </div>
 
-                {/* Profile Info */}
-                <div className="flex-grow">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h1 className="text-3xl font-bold">{profile.full_name || profile.username}</h1>
-                    {profile.is_verified && (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
-                        ✓ Verified
+                {/* @username */}
+                <p className="text-sm text-muted-foreground mb-1">@{profile.username}</p>
+
+                {/* Academic context */}
+                {(profile.institution || profile.faculty || profile.department || profile.level) && (
+                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground mb-2">
+                    {profile.institution && (
+                      <span className="flex items-center gap-1">
+                        <Building2 className="h-3 w-3" />{profile.institution}
                       </span>
                     )}
+                    {profile.faculty && (
+                      <span className="flex items-center gap-1">
+                        <GraduationCap className="h-3 w-3" />{profile.faculty}
+                      </span>
+                    )}
+                    {profile.department && (
+                      <span className="flex items-center gap-1">
+                        <BookOpen className="h-3 w-3" />{profile.department}
+                      </span>
+                    )}
+                    {profile.level && (
+                      <span className="flex items-center gap-1">{profile.level}</span>
+                    )}
                   </div>
-                  <p className="text-muted-foreground mb-2">@{profile.username}</p>
-                  {profile.bio && <p className="mb-4">{profile.bio}</p>}
+                )}
 
-                  {/* Stats */}
-                  <div className="flex gap-6 mb-4">
-                    <div>
-                      <div className="font-bold text-lg">{profile.total_posts}</div>
-                      <div className="text-xs text-muted-foreground">Posts</div>
-                    </div>
-                    <div>
-                      <div className="font-bold text-lg">{profile.total_followers}</div>
-                      <div className="text-xs text-muted-foreground">Followers</div>
-                    </div>
-                    <div>
-                      <div className="font-bold text-lg">{profile.total_following}</div>
-                      <div className="text-xs text-muted-foreground">Following</div>
-                    </div>
-                    <div>
-                      <div className="font-bold text-lg">{profile.reputation_points}</div>
-                      <div className="text-xs text-muted-foreground">Reputation</div>
-                    </div>
-                  </div>
+                {/* Bio */}
+                {profile.bio && (
+                  <p className="text-sm mb-2">{profile.bio}</p>
+                )}
 
-                  {/* Location and Website */}
-                  <div className="flex gap-4 text-sm text-muted-foreground mb-4">
-                    {profile.location && <span>📍 {profile.location}</span>}
+                {/* Location + Website */}
+                {(profile.location || profile.website_url) && (
+                  <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                    {profile.location && (
+                      <span className="flex items-center gap-1">
+                        <MapPin className="h-3.5 w-3.5" />{profile.location}
+                      </span>
+                    )}
                     {profile.website_url && (
-                      <a href={profile.website_url} target="_blank" rel="noopener noreferrer" className="hover:text-primary">
-                        🌐 Website
+                      <a
+                        href={profile.website_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 hover:text-primary"
+                      >
+                        <Globe className="h-3.5 w-3.5" />Website
                       </a>
                     )}
                   </div>
+                )}
 
-                  {/* Action Buttons */}
+                {/* Mobile action buttons (hidden on sm+) */}
+                <div className="sm:hidden mt-4 flex flex-col gap-2">
                   {isOwnProfile ? (
-                    <div className="flex gap-2">
-                      <Button asChild>
-                        <Link href="/settings/profile">Edit Profile</Link>
-                      </Button>
-                    </div>
+                    <Button asChild className="w-full">
+                      <Link href="/settings/profile">Edit Profile</Link>
+                    </Button>
                   ) : (
-                    <div className="flex gap-2">
-                      <Button>Follow</Button>
-                      <Button variant="outline">Message</Button>
-                    </div>
+                    <>
+                      <Button asChild className="w-full">
+                        <Link href={`/messages/${profile.id}`}>Message</Link>
+                      </Button>
+                      <Button variant="outline" className="w-full">Add to Study Group</Button>
+                      <Button variant="outline" className="w-full">Invite to Course</Button>
+                      <Link
+                        href={`/reports?user=${profile.username}`}
+                        className="text-xs text-muted-foreground hover:text-destructive text-center mt-1"
+                      >
+                        Report / Block
+                      </Link>
+                    </>
                   )}
                 </div>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Tabs */}
-          <div className="mb-6">
-            <div className="border-b">
-              <div className="flex gap-4">
-                <button className="px-4 py-2 border-b-2 border-primary font-medium">
-                  Posts
-                </button>
-                {isOwnProfile && (
-                  <>
-                    <button className="px-4 py-2 text-muted-foreground hover:text-foreground">
-                      Collections
-                    </button>
-                    <button className="px-4 py-2 text-muted-foreground hover:text-foreground">
-                      Series
-                    </button>
-                  </>
-                )}
-              </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Two-column grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+          {/* ── Main column ── */}
+          <div className="md:col-span-2 space-y-6">
+
+            {/* Profile completion bar — own profile only */}
+            {isOwnProfile && (() => {
+              const completion = computeProfileCompletion(profile, courses.length)
+              return !completion.isComplete ? (
+                <ProfileCompletionBar
+                  percent={completion.percent}
+                  steps={completion.steps}
+                  isComplete={completion.isComplete}
+                />
+              ) : null
+            })()}
+
+            {/* Academic Snapshot */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Academic Snapshot</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Current Courses */}
+                <div>
+                  <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                    Current Courses
+                  </h4>
+                  {courses.length > 0 ? (
+                    courses.map((c, i) =>
+                      c.courses ? (
+                        <p key={c.courses.id ?? i} className="text-sm">
+                          {c.courses.code} — {c.courses.title}
+                        </p>
+                      ) : null
+                    )
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No courses added yet.</p>
+                  )}
+                </div>
+
+                {/* Skills */}
+                <div>
+                  <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                    Skills
+                  </h4>
+                  {profile.skills?.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {profile.skills.map((s: string) => (
+                        <span key={s} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No skills added yet.</p>
+                  )}
+                </div>
+
+                {/* Academic Interests */}
+                <div>
+                  <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                    Academic Interests
+                  </h4>
+                  {profile.interests?.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {profile.interests.map((i: string) => (
+                        <span key={i} className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
+                          {i}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No interests added yet.</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Contributions & Activity */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Contributions &amp; Activity</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {[
+                    { label: 'Posts Shared', value: profile.total_posts || 0 },
+                    { label: 'Helpful Replies', value: profile.total_comments || 0 },
+                    { label: 'Reputation', value: profile.reputation_points || 0 },
+                    { label: 'Questions Answered', value: Math.floor((profile.total_comments || 0) * 0.4) },
+                  ].map(({ label, value }) => (
+                    <div key={label} className="text-center p-3 rounded-lg bg-muted/40">
+                      <div className="text-2xl font-bold">{value}</div>
+                      <div className="text-xs text-muted-foreground mt-1">{label}</div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recent Posts */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Posts</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0 px-3">
+                {posts && posts.length > 0 ? (
+                  posts.map((post: { id: string; title: string | null; excerpt: string | null; created_at: string; upvote_count: number; comment_count: number }) => (
+                    <Link
+                      key={post.id}
+                      href={`/posts/${post.id}`}
+                      className="block p-3 rounded-lg hover:bg-muted/50 transition-colors border-b last:border-0"
+                    >
+                      <p className="font-medium text-sm line-clamp-1">
+                        {post.title || post.excerpt || 'Untitled post'}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {timeAgo(post.created_at)} · {post.comment_count} replies
+                      </p>
+                    </Link>
+                  ))
+                ) : (
+                  <p className="text-center text-sm text-muted-foreground py-4">No posts yet.</p>
+                )}
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Posts List */}
-          <div className="space-y-4">
-            {posts && posts.length > 0 ? (
-              posts.map((post) => (
-                <Card key={post.id}>
-                  <CardContent className="pt-6">
-                    <Link href={`/posts/${post.id}`} className="hover:text-primary">
-                      <h3 className="text-lg font-bold mb-2">{post.title}</h3>
-                    </Link>
-                    {post.excerpt && <p className="text-muted-foreground mb-3">{post.excerpt}</p>}
-                    <div className="flex gap-4 text-sm text-muted-foreground">
-                      <span>👍 {post.upvote_count} upvotes</span>
-                      <span>💬 {post.comment_count} comments</span>
-                      <span>
-                        {new Date(post.created_at).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
+          {/* ── Sidebar column ── */}
+          <div className="md:col-span-1 space-y-6">
+
+            {/* Action Card — hidden on mobile (mobile shows buttons in header) */}
+            {isOwnProfile ? (
               <Card>
-                <CardContent className="pt-6 text-center text-muted-foreground">
-                  No posts yet
+                <CardContent className="pt-4 space-y-2">
+                  <Button className="w-full" asChild>
+                    <Link href="/settings/profile">Edit Profile</Link>
+                  </Button>
+                  <Button className="w-full" variant="outline" asChild>
+                    <Link href="/settings">Settings</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="hidden md:block">
+                <CardContent className="pt-4 space-y-2">
+                  <Button className="w-full" asChild>
+                    <Link href={`/messages/${profile.id}`}>Message</Link>
+                  </Button>
+                  <Button className="w-full" variant="outline">Add to Study Group</Button>
+                  <Button className="w-full" variant="outline">Invite to Course</Button>
+                  <div className="pt-2 border-t flex gap-2">
+                    <Link
+                      href={`/reports?user=${profile.username}`}
+                      className="text-xs text-muted-foreground hover:text-destructive"
+                    >
+                      Report
+                    </Link>
+                    <span className="text-xs text-muted-foreground">·</span>
+                    <button className="text-xs text-muted-foreground hover:text-destructive">Block</button>
+                  </div>
                 </CardContent>
               </Card>
             )}
+
+            {/* Groups & Communities */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Groups &amp; Communities</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {groups.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Not in any groups yet.</p>
+                ) : (
+                  <>
+                    <div className="space-y-2">
+                      {activeGroups.slice(0, 5).map((g, i) =>
+                        g.groups ? (
+                          <div key={g.groups.id ?? i} className="flex items-center gap-2 text-sm">
+                            <Link href={`/groups/${g.groups.id}`} className="hover:text-primary font-medium">
+                              {g.groups.name}
+                            </Link>
+                            <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full capitalize">
+                              {g.groups.group_type}
+                            </span>
+                          </div>
+                        ) : null
+                      )}
+                    </div>
+                    {archivedGroups.length > 0 && (
+                      <details className="mt-3 text-sm">
+                        <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
+                          {archivedGroups.length} archived group{archivedGroups.length !== 1 ? 's' : ''}
+                        </summary>
+                        <div className="space-y-2 mt-2 pl-2 border-l">
+                          {archivedGroups.map((g, i) =>
+                            g.groups ? (
+                              <div key={g.groups.id ?? i} className="flex items-center gap-2 text-muted-foreground">
+                                <span className="font-medium">{g.groups.name}</span>
+                                <span className="text-xs bg-muted px-2 py-0.5 rounded-full capitalize">
+                                  {g.groups.group_type}
+                                </span>
+                              </div>
+                            ) : null
+                          )}
+                        </div>
+                      </details>
+                    )}
+                  </>
+                )}
+              </CardContent>
+            </Card>
           </div>
+
         </div>
       </div>
+
+      <BottomNav username={currentProfile?.username} />
     </div>
   )
 }

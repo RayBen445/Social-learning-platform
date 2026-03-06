@@ -3,10 +3,12 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { PublicNavbar } from '@/components/public-navbar'
 
 export default function TermsPage() {
   return (
     <div className="min-h-screen bg-background">
+      <PublicNavbar />
       <div className="mx-auto max-w-4xl px-4 py-12 md:py-16">
         <Link href="/">
           <Button variant="ghost" className="mb-8">

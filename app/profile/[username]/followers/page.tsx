@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import Link from 'next/link'
 import FollowButton from '@/components/users/follow-button'
+import { AppNavbar } from '@/components/app-navbar'
 
 interface FollowersPageProps {
   params: Promise<{
@@ -36,8 +37,14 @@ export default async function FollowersPage({ params }: FollowersPageProps) {
     data: { user: currentUser },
   } = await supabase.auth.getUser()
 
+  const { data: currentProfile } = currentUser
+    ? await supabase.from('profiles').select('username, full_name, avatar_url').eq('id', currentUser.id).single()
+    : { data: null }
+
   return (
-    <div className="container mx-auto max-w-2xl py-10">
+    <div className="min-h-screen bg-background">
+      <AppNavbar user={currentProfile ?? undefined} />
+      <div className="container mx-auto max-w-2xl py-10">
       <div className="space-y-6">
         {/* Header */}
         <div>
@@ -109,6 +116,7 @@ export default async function FollowersPage({ params }: FollowersPageProps) {
             </CardContent>
           </Card>
         )}
+      </div>
       </div>
     </div>
   )

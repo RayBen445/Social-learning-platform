@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import MarkNotificationAsReadButton from '@/components/notifications/mark-as-read-button'
 import { AppNavbar } from '@/components/app-navbar'
-import { Bell, MessageCircle, Heart, UserPlus, Share2 } from 'lucide-react'
+import { Bell, MessageCircle, Heart, UserPlus, Share2, ArrowLeft } from 'lucide-react'
 import { Suspense } from 'react'
+import { VerifiedBadge } from '@/components/users/verified-badge'
 
 function NotificationsLoading() {
   return (
@@ -65,7 +66,43 @@ export default async function NotificationsPage() {
     .order('created_at', { ascending: false })
     .limit(100)
 
-  const getNotificationMessage = (notification: any) => {
+  return (
+    <Suspense fallback={<NotificationsLoading />}>
+      <NotificationsContent userProfile={userProfile} notifications={notifications ?? []} />
+    </Suspense>
+  )
+}
+
+type Notification = {
+  id: string
+  type: string
+  actor_id: string
+  post_id?: string
+  is_read: boolean
+  created_at: string
+  message?: string
+  actor?: {
+    id: string
+    username: string
+    full_name?: string
+    avatar_url?: string
+    is_verified?: boolean
+    verification_type?: string
+  }
+  post?: {
+    id: string
+    title: string
+  }
+}
+
+type UserProfile = {
+  username?: string
+  full_name?: string
+  avatar_url?: string
+}
+
+async function NotificationsContent({ userProfile, notifications }: { userProfile: UserProfile | null; notifications: Notification[] }) {
+  const getNotificationMessage = (notification: Notification) => {
     switch (notification.type) {
       case 'comment':
         return `commented on your post`
@@ -99,7 +136,7 @@ export default async function NotificationsPage() {
     }
   }
 
-  const getNotificationLink = (notification: any) => {
+  const getNotificationLink = (notification: Notification) => {
     if (notification.post_id) {
       return `/posts/${notification.post_id}`
     } else if (notification.actor_id) {
@@ -109,26 +146,24 @@ export default async function NotificationsPage() {
   }
 
   return (
-    <Suspense fallback={<NotificationsLoading />}>
-      <NotificationsContent userProfile={userProfile} notifications={notifications} />
-    </Suspense>
-  )
-}
-
-async function NotificationsContent({ userProfile, notifications }: { userProfile: any; notifications: any }) {
-  return (
     <div className="min-h-screen bg-background">
-      <AppNavbar user={userProfile} />
+      <AppNavbar user={userProfile || undefined} />
       
       <div className="container mx-auto max-w-3xl py-10 px-4">
         <div className="space-y-6">
           {/* Header */}
           <div className="flex items-center gap-3">
+            <Link href="/dashboard" className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <ArrowLeft className="h-4 w-4" />
+              Dashboard
+            </Link>
+          </div>
+          <div className="flex items-center gap-3">
             <Bell className="h-8 w-8 text-primary" />
             <div>
               <h1 className="text-3xl font-bold">Notifications</h1>
               <p className="text-muted-foreground">
-                Stay updated with what's happening in your community
+                Stay updated with what&apos;s happening in your community
               </p>
             </div>
           </div>
@@ -136,7 +171,7 @@ async function NotificationsContent({ userProfile, notifications }: { userProfil
           {/* Notifications List */}
           {notifications && notifications.length > 0 ? (
             <div className="space-y-2">
-              {notifications.map((notification: any) => (
+              {notifications.map((notification: Notification) => (
                 <Link key={notification.id} href={getNotificationLink(notification)}>
                   <Card className={`hover:bg-muted/50 cursor-pointer transition ${
                     !notification.is_read ? 'border-primary bg-primary/5' : ''
@@ -165,7 +200,7 @@ async function NotificationsContent({ userProfile, notifications }: { userProfil
                               {notification.actor?.full_name || notification.actor?.username}
                             </span>
                             {notification.actor?.is_verified && (
-                              <span className="text-blue-600 text-xs">✓ Verified</span>
+                              <VerifiedBadge verificationType={notification.actor.verification_type || 'standard'} size="xs" />
                             )}
                             <span className="text-muted-foreground">
                               {getNotificationMessage(notification)}

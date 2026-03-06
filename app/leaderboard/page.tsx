@@ -1,8 +1,44 @@
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'
+import { Suspense } from 'react'
+import { VerifiedBadge } from '@/components/users/verified-badge'
+import { AppNavbar } from '@/components/app-navbar'
+
+function LeaderboardLoading() {
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto py-10">
+        <div className="max-w-3xl mx-auto space-y-8">
+          <div className="text-center space-y-2">
+            <div className="h-10 w-40 bg-muted animate-pulse rounded mx-auto" />
+            <div className="h-5 w-64 bg-muted animate-pulse rounded mx-auto" />
+          </div>
+          <div className="flex gap-4 border-b pb-0">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-9 w-28 bg-muted animate-pulse rounded" />
+            ))}
+          </div>
+          <div className="space-y-2">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} className="h-20 bg-muted animate-pulse rounded-lg border" />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default async function LeaderboardPage() {
+  return (
+    <Suspense fallback={<LeaderboardLoading />}>
+      <LeaderboardContent />
+    </Suspense>
+  )
+}
+
+async function LeaderboardContent() {
   const supabase = await createClient()
 
   // Fetch top users by reputation
@@ -15,6 +51,10 @@ export default async function LeaderboardPage() {
   const {
     data: { user: currentUser },
   } = await supabase.auth.getUser()
+
+  const { data: currentProfile } = currentUser
+    ? await supabase.from('profiles').select('username, full_name, avatar_url').eq('id', currentUser.id).single()
+    : { data: null }
 
   const getMedalEmoji = (rank: number) => {
     switch (rank) {
@@ -31,6 +71,7 @@ export default async function LeaderboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <AppNavbar user={currentProfile ?? undefined} />
       <div className="container mx-auto py-10">
         <div className="max-w-3xl mx-auto space-y-8">
           {/* Header */}
@@ -98,7 +139,7 @@ export default async function LeaderboardPage() {
                         >
                           <span className="font-bold">{user.full_name || user.username}</span>
                           {user.is_verified && (
-                            <span className="text-blue-600 text-sm">✓</span>
+                            <VerifiedBadge verificationType={user.verification_type} size="xs" />
                           )}
                         </Link>
                         <p className="text-xs text-muted-foreground">
