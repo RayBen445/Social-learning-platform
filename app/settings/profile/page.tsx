@@ -138,13 +138,27 @@ export default function ProfileSettingsPage() {
       setIsUploadingAvatar(true)
       const fileExt = avatarFile.name.split('.').pop()
       const filePath = `avatars/${userId}-${Date.now()}.${fileExt}`
+      
+      // Delete old avatar if exists
+      if (profile?.avatar_url) {
+        try {
+          const oldPath = profile.avatar_url.split('/').pop()
+          if (oldPath) {
+            await supabase.storage.from('profiles').remove([`avatars/${oldPath}`])
+          }
+        } catch (err) {
+          console.warn('Could not delete old avatar:', err)
+        }
+      }
+
       const { error: uploadError } = await supabase.storage.from('profiles').upload(filePath, avatarFile, { upsert: true })
       if (uploadError) throw uploadError
+      
       const { data: { publicUrl } } = supabase.storage.from('profiles').getPublicUrl(filePath)
       return publicUrl
     } catch (err) {
       console.error('Avatar upload failed:', err)
-      throw new Error('Failed to upload avatar')
+      throw new Error('Failed to upload avatar. Please try again.')
     } finally {
       setIsUploadingAvatar(false)
     }
@@ -157,40 +171,54 @@ export default function ProfileSettingsPage() {
       setIsUploadingBanner(true)
       const fileExt = bannerFile.name.split('.').pop()
       const filePath = `banners/${userId}-${Date.now()}.${fileExt}`
+      
+      // Delete old banner if exists
+      if (profile?.banner_url) {
+        try {
+          const oldPath = profile.banner_url.split('/').pop()
+          if (oldPath) {
+            await supabase.storage.from('profiles').remove([`banners/${oldPath}`])
+          }
+        } catch (err) {
+          console.warn('Could not delete old banner:', err)
+        }
+      }
+
       const { error: uploadError } = await supabase.storage.from('profiles').upload(filePath, bannerFile, { upsert: true })
       if (uploadError) throw uploadError
+      
       const { data: { publicUrl } } = supabase.storage.from('profiles').getPublicUrl(filePath)
       return publicUrl
     } catch (err) {
       console.error('Banner upload failed:', err)
-      throw new Error('Failed to upload banner')
+      throw new Error('Failed to upload cover photo. Please try again.')
     } finally {
       setIsUploadingBanner(false)
     }
   }
 
-  // Upload avatar immediately and persist to DB — no need to click Save Changes
-  const handleUploadAvatarNow = async () => {
-    if (!avatarFile) return
+  // Upload banner immediately and persist to DB — no need to click Save Changes
+  const handleUploadBannerNow = async () => {
+    if (!bannerFile) return
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
     setError(null)
     try {
-      const avatarUrl = await uploadAvatar(user.id)
-      if (avatarUrl) {
+      const bannerUrl = await uploadBanner(user.id)
+      if (bannerUrl) {
         const { error: updateError } = await supabase
           .from('profiles')
-          .update({ avatar_url: avatarUrl, updated_at: new Date().toISOString() })
+          .update({ banner_url: bannerUrl, updated_at: new Date().toISOString() })
           .eq('id', user.id)
         if (updateError) throw updateError
-        setProfile((prev: any) => ({ ...prev, avatar_url: avatarUrl }))
-        setAvatarPreview(avatarUrl)
-        setAvatarFile(null)
+        setProfile((prev: any) => ({ ...prev, banner_url: bannerUrl }))
+        setBannerPreview(bannerUrl)
+        setBannerFile(null)
         setSuccess(true)
         setTimeout(() => setSuccess(false), 3000)
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to upload avatar')
+      setError(err instanceof Error ? err.message : 'Failed to upload cover photo')
     }
   }
 
@@ -373,7 +401,32 @@ export default function ProfileSettingsPage() {
                     disabled={isUploadingBanner}
                   />
                   <p className="text-xs text-muted-foreground">JPG, PNG, WebP – max 5 MB</p>
-                  {(bannerFile || bannerPreview) && (
+                  {bannerFile && (
+                    <div className="flex gap-2 flex-wrap">
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={handleUploadBannerNow}
+                        disabled={isUploadingBanner}
+                      >
+                        {isUploadingBanner ? (
+                          <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Uploading…</>
+                        ) : (
+                          'Upload Now'
+                        )}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => { setBannerFile(null); setBannerPreview(profile?.banner_url || null) }}
+                      >
+                        <X className="h-4 w-4 mr-1" />
+                        Clear
+                      </Button>
+                    </div>
+                  )}
+                  {(bannerFile || bannerPreview) && !bannerFile && (
                     <Button
                       type="button"
                       variant="outline"
