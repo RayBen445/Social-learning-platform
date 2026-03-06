@@ -1,5 +1,3 @@
-import { createClient } from '@/lib/supabase/server'
-
 export type VerificationStatus = 'pending' | 'approved' | 'rejected' | 'unverified'
 
 export interface StudentVerificationRecord {
@@ -26,7 +24,7 @@ export const INSTITUTIONAL_EMAIL_DOMAINS: Record<string, string[]> = {
   'Pan-Atlantic University, Ibeju-Lekki': ['pau.edu.ng'],
   'Covenant University, Ota': ['covenantuniversity.edu.ng'],
   'Babcock University, Ilishan-Remo': ['babcock.edu.ng'],
-  'Redeemer\'s University, Ede': ['run.edu.ng'],
+  "Redeemer's University, Ede": ['run.edu.ng'],
   'Landmark University, Omu-Aran': ['lmu.edu.ng'],
   'University of Ibadan (UI)': ['ui.edu.ng'],
   'Ladoke Akintola University of Technology, Ogbomoso (LAUTECH)': ['lautech.edu.ng'],
@@ -88,6 +86,7 @@ export const INSTITUTIONAL_EMAIL_DOMAINS: Record<string, string[]> = {
 
 /**
  * Validate if email belongs to the selected institution
+ * This is a client-side utility for UI feedback only
  */
 export function validateInstitutionalEmail(email: string, institution: string): boolean {
   const domains = INSTITUTIONAL_EMAIL_DOMAINS[institution]
@@ -95,109 +94,4 @@ export function validateInstitutionalEmail(email: string, institution: string): 
 
   const emailDomain = email.split('@')[1]?.toLowerCase()
   return domains.some(domain => emailDomain === domain.toLowerCase())
-}
-
-/**
- * Create a verification record for a new student
- */
-export async function createVerificationRecord(
-  userId: string,
-  institution: string,
-  verificationMethod: 'email' | 'id',
-  verificationEmail?: string,
-  studentIdUrl?: string
-): Promise<StudentVerificationRecord> {
-  const supabase = await createClient()
-
-  const { data, error } = await supabase
-    .from('student_verification')
-    .insert({
-      user_id: userId,
-      institution,
-      verification_method: verificationMethod,
-      verification_email: verificationEmail,
-      student_id_url: studentIdUrl,
-      status: 'pending',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })
-    .select()
-    .single()
-
-  if (error) throw error
-  return data
-}
-
-/**
- * Get verification status for a student
- */
-export async function getVerificationStatus(userId: string): Promise<StudentVerificationRecord | null> {
-  const supabase = await createClient()
-
-  const { data, error } = await supabase
-    .from('student_verification')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
-
-  if (error) throw error
-  return data
-}
-
-/**
- * Update verification status (Admin action)
- */
-export async function updateVerificationStatus(
-  verificationId: string,
-  status: VerificationStatus,
-  rejectionReason?: string
-): Promise<StudentVerificationRecord> {
-  const supabase = await createClient()
-
-  const updateData: Record<string, any> = {
-    status,
-    updated_at: new Date().toISOString(),
-  }
-
-  if (status === 'approved') {
-    updateData.verified_at = new Date().toISOString()
-  }
-
-  if (rejectionReason) {
-    updateData.rejection_reason = rejectionReason
-  }
-
-  const { data, error } = await supabase
-    .from('student_verification')
-    .update(updateData)
-    .eq('id', verificationId)
-    .select()
-    .single()
-
-  if (error) throw error
-  return data
-}
-
-/**
- * Check if user is verified as a student
- */
-export async function isStudentVerified(userId: string): Promise<boolean> {
-  const verification = await getVerificationStatus(userId)
-  return verification?.status === 'approved'
-}
-
-/**
- * Send verification email (integration with email service)
- */
-export async function sendVerificationEmail(
-  email: string,
-  userName: string,
-  institution: string,
-  verificationLink: string
-): Promise<void> {
-  // This would be implemented with Resend or other email service
-  console.log(`[Email] Sending verification email to ${email}`)
-  console.log(`Verification link: ${verificationLink}`)
 }
