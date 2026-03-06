@@ -14,6 +14,13 @@ import Link from 'next/link'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { NIGERIA_STATES, INSTITUTIONS_BY_STATE } from '@/lib/nigeria-institutions'
 import { FACULTIES_BY_INSTITUTION, getDepartmentsByFaculty } from '@/lib/faculties-departments'
+import { ImageEditor, DragDropUpload } from '@/components/image-editor'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 export default function ProfileSettingsPage() {
   const [profile, setProfile] = useState<any>(null)
@@ -36,10 +43,10 @@ export default function ProfileSettingsPage() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
 
-  // Banner upload state
-  const [bannerFile, setBannerFile] = useState<File | null>(null)
-  const [bannerPreview, setBannerPreview] = useState<string | null>(null)
-  const [isUploadingBanner, setIsUploadingBanner] = useState(false)
+  // Image editor state
+  const [editingImage, setEditingImage] = useState<{ type: 'avatar' | 'banner'; url: string } | null>(null)
+  const [showImageEditor, setShowImageEditor] = useState(false)
+  const [selectedImageForEdit, setSelectedImageForEdit] = useState<File | null>(null)
 
   // Academic info state
   const [institution, setInstitution] = useState('')
@@ -244,6 +251,42 @@ export default function ProfileSettingsPage() {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to upload cover photo')
+    }
+  }
+
+  // Handle image selection for editing
+  const handleImageSelected = (file: File) => {
+    setSelectedImageForEdit(file)
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      setEditingImage({
+        type: editingImage?.type || 'avatar',
+        url: e.target?.result as string,
+      })
+      setShowImageEditor(true)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  // Handle edited image save
+  const handleImageEditorSave = async (blob: Blob) => {
+    if (!editingImage) return
+    
+    try {
+      const file = new File([blob], `${editingImage.type}-${Date.now()}.jpg`, { type: 'image/jpeg' })
+      
+      if (editingImage.type === 'avatar') {
+        setAvatarFile(file)
+        setAvatarPreview(URL.createObjectURL(blob))
+      } else {
+        setBannerFile(file)
+        setBannerPreview(URL.createObjectURL(blob))
+      }
+      
+      setShowImageEditor(false)
+      setEditingImage(null)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to process edited image')
     }
   }
 
@@ -486,48 +529,40 @@ export default function ProfileSettingsPage() {
                     )}
                   </div>
                   <div className="flex-grow space-y-2">
-                    <Label htmlFor="avatar" className="cursor-pointer">
-                      <div className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90 transition w-fit">
-                        <Upload className="h-4 w-4" />
-                        Choose Image
-                      </div>
-                    </Label>
-                    <input
-                      id="avatar"
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp"
-                      onChange={handleAvatarChange}
-                      className="hidden"
-                      disabled={isUploadingAvatar}
+                    <DragDropUpload
+                      onImageSelected={(file) => {
+                        setEditingImage({ type: 'avatar', url: '' })
+                        handleImageSelected(file)
+                      }}
                     />
-                    <p className="text-xs text-muted-foreground">JPG, PNG, WebP – max 5 MB</p>
-                    {avatarFile && (
-                      <div className="flex gap-2 flex-wrap">
-                        <Button
-                          type="button"
-                          size="sm"
-                          onClick={handleUploadAvatarNow}
-                          disabled={isUploadingAvatar}
-                        >
-                          {isUploadingAvatar ? (
-                            <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Uploading…</>
-                          ) : (
-                            'Upload Now'
-                          )}
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => { setAvatarFile(null); setAvatarPreview(profile?.avatar_url || null) }}
-                        >
-                          <X className="h-4 w-4 mr-1" />
-                          Clear
-                        </Button>
-                      </div>
-                    )}
                   </div>
                 </div>
+
+                {avatarFile && (
+                  <div className="flex gap-2 flex-wrap pt-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={handleUploadAvatarNow}
+                      disabled={isUploadingAvatar}
+                    >
+                      {isUploadingAvatar ? (
+                        <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Uploading…</>
+                      ) : (
+                        'Upload Now'
+                      )}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => { setAvatarFile(null); setAvatarPreview(profile?.avatar_url || null) }}
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Cancel
+                    </Button>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -821,6 +856,25 @@ export default function ProfileSettingsPage() {
           </div>
         </div>
       </div>
+
+      {/* Image Editor Modal */}
+      <Dialog open={showImageEditor} onOpenChange={setShowImageEditor}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              Edit {editingImage?.type === 'avatar' ? 'Avatar' : 'Cover Photo'}
+            </DialogTitle>
+          </DialogHeader>
+          {editingImage && (
+            <ImageEditor
+              imageUrl={editingImage.url}
+              onSave={handleImageEditorSave}
+              onClose={() => setShowImageEditor(false)}
+              aspectRatio={editingImage.type === 'avatar' ? 'square' : 'banner'}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
