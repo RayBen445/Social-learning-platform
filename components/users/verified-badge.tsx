@@ -1,7 +1,7 @@
 'use client'
 
 import { BadgeCheck, Clock } from 'lucide-react'
-import { motion, easeInOut } from 'framer-motion'
+import { motion, Variants, easeInOut } from 'framer-motion'
 import {
   Tooltip,
   TooltipContent,
@@ -16,7 +16,7 @@ interface VerifiedBadgeProps {
   animated?: boolean
 }
 
-const badgeVariants = {
+const badgeVariants: Record<string, Variants> = {
   spin: {
     rotate: 360,
     transition: {
