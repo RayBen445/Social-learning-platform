@@ -92,9 +92,7 @@ CREATE POLICY "Users can update their own message conversations"
 -- RLS Policies for reputation_logs
 CREATE POLICY "Users can view their own reputation logs"
   ON public.reputation_logs FOR SELECT
-  USING (auth.uid() = user_id OR auth.uid() IN (
-    SELECT id FROM public.profiles WHERE is_admin = true
-  ));
+  USING (auth.uid() = user_id);
 
 CREATE POLICY "System can insert reputation logs"
   ON public.reputation_logs FOR INSERT
