@@ -66,6 +66,41 @@ export default async function NotificationsPage() {
     .order('created_at', { ascending: false })
     .limit(100)
 
+  return (
+    <Suspense fallback={<NotificationsLoading />}>
+      <NotificationsContent userProfile={userProfile} notifications={notifications ?? []} />
+    </Suspense>
+  )
+}
+
+type Notification = {
+  id: string
+  type: string
+  actor_id: string
+  post_id?: string
+  is_read: boolean
+  created_at: string
+  message?: string
+  actor?: {
+    id: string
+    username: string
+    full_name?: string
+    avatar_url?: string
+    is_verified?: boolean
+  }
+  post?: {
+    id: string
+    title: string
+  }
+}
+
+type UserProfile = {
+  username?: string
+  full_name?: string
+  avatar_url?: string
+}
+
+async function NotificationsContent({ userProfile, notifications }: { userProfile: UserProfile | null; notifications: Notification[] }) {
   const getNotificationMessage = (notification: Notification) => {
     switch (notification.type) {
       case 'comment':
@@ -109,41 +144,6 @@ export default async function NotificationsPage() {
     return '#'
   }
 
-  return (
-    <Suspense fallback={<NotificationsLoading />}>
-      <NotificationsContent userProfile={userProfile} notifications={notifications ?? []} />
-    </Suspense>
-  )
-}
-
-type Notification = {
-  id: string
-  type: string
-  actor_id: string
-  post_id?: string
-  is_read: boolean
-  created_at: string
-  message?: string
-  actor?: {
-    id: string
-    username: string
-    full_name?: string
-    avatar_url?: string
-    is_verified?: boolean
-  }
-  post?: {
-    id: string
-    title: string
-  }
-}
-
-type UserProfile = {
-  username?: string
-  full_name?: string
-  avatar_url?: string
-}
-
-async function NotificationsContent({ userProfile, notifications }: { userProfile: UserProfile | null; notifications: Notification[] }) {
   return (
     <div className="min-h-screen bg-background">
       <AppNavbar user={userProfile || undefined} />
