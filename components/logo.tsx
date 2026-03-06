@@ -1,37 +1,37 @@
-import Image from 'next/image'
+'use client'
+
 import Link from 'next/link'
+import { AdaptiveLogo } from './adaptive-logo'
 
 interface LogoProps {
   href?: string
   size?: 'sm' | 'md' | 'lg'
   showText?: boolean
   className?: string
+  variant?: 'icon' | 'full'
 }
 
-const sizeMap = {
-  sm: { width: 32, height: 32 },
-  md: { width: 48, height: 48 },
-  lg: { width: 64, height: 64 },
-}
-
-export function Logo({ href = '/', size = 'md', showText = false, className = '' }: LogoProps) {
-  const dimensions = sizeMap[size]
-
+export function Logo({ 
+  href = '/', 
+  size = 'md', 
+  showText = true, 
+  className = '',
+  variant = 'icon'
+}: LogoProps) {
+  
   const logo = (
     <div className={`flex items-center gap-2 ${className}`}>
-      <div className="relative">
-        <Image
-          src="/images/learnloop-logo.jpg"
-          alt="LearnLoop Logo"
-          width={dimensions.width}
-          height={dimensions.height}
-          className="rounded-lg"
-          priority
+      <div className="flex items-center justify-center">
+        {/* Icon only - adapts to background color */}
+        <AdaptiveLogo 
+          size={size} 
+          variant="icon"
+          className="text-foreground dark:text-foreground transition-colors"
         />
       </div>
       {showText && (
         <div className="hidden sm:block">
-          <h1 className={`font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent ${
+          <h1 className={`font-bold bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent ${
             size === 'sm' ? 'text-sm' : size === 'md' ? 'text-lg' : 'text-2xl'
           }`}>
             LearnLoop
