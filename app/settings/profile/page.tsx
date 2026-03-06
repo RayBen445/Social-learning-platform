@@ -43,6 +43,11 @@ export default function ProfileSettingsPage() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
 
+  // Banner upload state
+  const [bannerFile, setBannerFile] = useState<File | null>(null)
+  const [bannerPreview, setBannerPreview] = useState<string | null>(null)
+  const [isUploadingBanner, setIsUploadingBanner] = useState(false)
+
   // Image editor state
   const [editingImage, setEditingImage] = useState<{ type: 'avatar' | 'banner'; url: string } | null>(null)
   const [showImageEditor, setShowImageEditor] = useState(false)

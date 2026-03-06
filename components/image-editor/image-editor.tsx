@@ -286,7 +286,11 @@ export function ImageEditor({
             <TabsContent value="crop" className="space-y-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">Aspect Ratio</label>
-                <Select value={selectedAspect} onValueChange={setSelectedAspect}>
+                <Select value={selectedAspect} onValueChange={(val) => {
+                  if (val === 'square' || val === 'banner' || val === 'free') {
+                    setSelectedAspect(val)
+                  }
+                }}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
