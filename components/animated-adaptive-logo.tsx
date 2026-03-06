@@ -1,6 +1,6 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { motion, easeInOut } from 'framer-motion'
 import React from 'react'
 
 interface AnimatedLogoProps {
@@ -34,7 +34,7 @@ export function AnimatedAdaptiveLogo({
       transition: {
         duration: 3,
         repeat: Infinity,
-        ease: 'easeInOut',
+        ease: easeInOut,
       }
     },
   }
@@ -45,7 +45,7 @@ export function AnimatedAdaptiveLogo({
       transition: {
         duration: 2.5,
         repeat: Infinity,
-        ease: 'easeInOut',
+        ease: easeInOut,
       }
     },
   }
