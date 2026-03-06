@@ -1,9 +1,13 @@
 'use client'
 
 import { ReactNode } from 'react'
-import { Button, type ButtonProps } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
+import type { VariantProps } from 'class-variance-authority'
+import { cva } from 'class-variance-authority'
 
-interface LoadingButtonProps extends ButtonProps {
+const buttonVariants = cva('inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50')
+
+interface LoadingButtonProps extends React.ComponentProps<'button'>, VariantProps<typeof buttonVariants> {
   isLoading?: boolean
   loadingText?: string
   children: ReactNode
