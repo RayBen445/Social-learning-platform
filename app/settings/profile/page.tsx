@@ -12,6 +12,8 @@ import { Upload, X, Loader2, ArrowLeft, CheckCircle } from 'lucide-react'
 import { AppNavbar } from '@/components/app-navbar'
 import Link from 'next/link'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { NIGERIA_STATES, INSTITUTIONS_BY_STATE } from '@/lib/nigeria-institutions'
+import { FACULTIES_BY_INSTITUTION, getDepartmentsByFaculty } from '@/lib/faculties-departments'
 
 export default function ProfileSettingsPage() {
   const [profile, setProfile] = useState<any>(null)
@@ -41,6 +43,9 @@ export default function ProfileSettingsPage() {
 
   // Academic info state
   const [institution, setInstitution] = useState('')
+  const [institutionState, setInstitutionState] = useState('')
+  const [institutionCustom, setInstitutionCustom] = useState('')
+  const [institutionSearch, setInstitutionSearch] = useState('')
   const [faculty, setFaculty] = useState('')
   const [department, setDepartment] = useState('')
   const [level, setLevel] = useState('')
@@ -218,7 +223,7 @@ export default function ProfileSettingsPage() {
         website_url: websiteUrl,
         avatar_url: avatarUrl,
         banner_url: bannerUrl,
-        institution,
+        institution: institution === 'other' ? institutionCustom : institution,
         faculty,
         department,
         level,
@@ -246,7 +251,7 @@ export default function ProfileSettingsPage() {
         website_url: websiteUrl,
         avatar_url: avatarUrl,
         banner_url: bannerUrl,
-        institution,
+        institution: institution === 'other' ? institutionCustom : institution,
         faculty,
         department,
         level,
@@ -541,32 +546,116 @@ export default function ProfileSettingsPage() {
             <CardContent>
               <div className="space-y-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="institution">Institution</Label>
-                  <Input
-                    id="institution"
-                    value={institution}
-                    onChange={(e) => setInstitution(e.target.value)}
-                    placeholder="e.g. University of Lagos"
-                  />
+                  <Label htmlFor="state">State</Label>
+                  <Select
+                    value={institutionState}
+                    onValueChange={(v) => {
+                      setInstitutionState(v)
+                      setInstitution('')
+                      setInstitutionSearch('')
+                    }}
+                  >
+                    <SelectTrigger id="state">
+                      <SelectValue placeholder="Select your state" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {NIGERIA_STATES.map((s) => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
+
+                {institutionState && (() => {
+                  const allForState = INSTITUTIONS_BY_STATE[institutionState] || []
+                  const filtered = institutionSearch
+                    ? allForState.filter((i) =>
+                        i.toLowerCase().includes(institutionSearch.toLowerCase())
+                      )
+                    : allForState
+                  return (
+                    <div className="grid gap-2">
+                      <Label htmlFor="institution">Institution</Label>
+                      <Input
+                        placeholder="Search institution…"
+                        value={institutionSearch}
+                        onChange={(e) => {
+                          setInstitutionSearch(e.target.value)
+                          setInstitution('')
+                        }}
+                      />
+                      {filtered.length === 0 && institutionSearch ? (
+                        <p className="text-sm text-muted-foreground">
+                          No institutions found for &quot;{institutionSearch}&quot;
+                        </p>
+                      ) : (
+                        <Select value={institution} onValueChange={setInstitution}>
+                          <SelectTrigger id="institution">
+                            <SelectValue placeholder="Select your institution" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {filtered.map((inst) => (
+                              <SelectItem key={inst} value={inst}>{inst}</SelectItem>
+                            ))}
+                            <SelectItem value="other">My institution isn&apos;t listed</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                      {(institution === 'other' || (filtered.length === 0 && institutionSearch)) && (
+                        <Input
+                          placeholder="Enter your institution name"
+                          value={institutionCustom}
+                          onChange={(e) => setInstitutionCustom(e.target.value)}
+                        />
+                      )}
+                    </div>
+                  )
+                })()}
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="grid gap-2">
                     <Label htmlFor="faculty">Faculty / School</Label>
-                    <Input
-                      id="faculty"
-                      value={faculty}
-                      onChange={(e) => setFaculty(e.target.value)}
-                      placeholder="e.g. Faculty of Science"
-                    />
+                    <Select value={faculty} onValueChange={setFaculty}>
+                      <SelectTrigger id="faculty" disabled={!institution || institution === 'other'}>
+                        <SelectValue placeholder="Select your faculty" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(() => {
+                          const faculties = institution === 'other' 
+                            ? [] 
+                            : FACULTIES_BY_INSTITUTION[institution] || []
+                          return faculties.length > 0 ? (
+                            faculties.map((fac) => (
+                              <SelectItem key={fac} value={fac}>{fac}</SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="other" disabled>No faculties available</SelectItem>
+                          )
+                        })()}
+                      </SelectContent>
+                    </Select>
+                    {(!institution || institution === 'other') && (
+                      <p className="text-xs text-muted-foreground">Select an institution first</p>
+                    )}
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="department">Department</Label>
-                    <Input
-                      id="department"
-                      value={department}
-                      onChange={(e) => setDepartment(e.target.value)}
-                      placeholder="e.g. Computer Science"
-                    />
+                    <Select value={department} onValueChange={setDepartment} disabled={!faculty}>
+                      <SelectTrigger id="department" disabled={!faculty}>
+                        <SelectValue placeholder="Select your department" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(() => {
+                          const departments = getDepartmentsByFaculty(faculty)
+                          return departments.length > 0 ? (
+                            departments.map((dept) => (
+                              <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="other" disabled>Select a faculty first</SelectItem>
+                          )
+                        })()}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">

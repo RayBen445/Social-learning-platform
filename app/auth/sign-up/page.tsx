@@ -36,9 +36,12 @@ import {
   BookOpen,
   User,
   Upload,
+  AlertCircle,
 } from 'lucide-react'
 import { handleSignUpEmail } from '@/app/actions/send-emails'
 import { NIGERIA_STATES, INSTITUTIONS_BY_STATE } from '@/lib/nigeria-institutions'
+import { FACULTIES_BY_INSTITUTION, getDepartmentsByFaculty } from '@/lib/faculties-departments'
+import { validateInstitutionalEmail } from '@/lib/student-verification'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -209,7 +212,7 @@ export default function SignUpPage() {
             .eq('id', data.user.id)
         } catch (profileErr) {
           // Profile row may not be ready yet; this is non-fatal
-          console.warn('[SignUp] Profile update skipped — row may not exist yet:', profileErr)
+          console.warn('[SignUp] Profile update skipped �� row may not exist yet:', profileErr)
         }
       }
 
@@ -448,12 +451,12 @@ export default function SignUpPage() {
                         {
                           value: 'email' as VerificationMethod,
                           label: 'School Email',
-                          description: 'Use your .edu or institutional email',
+                          description: 'Use your institutional email',
                         },
                         {
                           value: 'id' as VerificationMethod,
                           label: 'Student ID',
-                          description: 'Upload your student ID document',
+                          description: 'Upload your student ID',
                         },
                       ] as const
                     ).map(({ value, label, description }) => (
@@ -473,6 +476,37 @@ export default function SignUpPage() {
                     ))}
                   </div>
                 </div>
+
+                {verificationMethod === 'email' && (
+                  <div className="grid gap-2">
+                    <Label htmlFor="verificationEmail">Institutional Email *</Label>
+                    <Input
+                      id="verificationEmail"
+                      type="email"
+                      placeholder="your.name@institution.edu.ng"
+                      value={email}
+                      readOnly
+                      className="bg-muted"
+                    />
+                    {email && institution && !institution.includes('other') && (() => {
+                      const isValid = validateInstitutionalEmail(email, institution === 'other' ? institutionCustom : institution)
+                      return (
+                        <div className={`flex items-center gap-2 text-xs p-2 rounded-md ${
+                          isValid 
+                            ? 'bg-green-500/10 text-green-700' 
+                            : 'bg-amber-500/10 text-amber-700'
+                        }`}>
+                          <AlertCircle className="h-3 w-3" />
+                          <span>
+                            {isValid 
+                              ? 'Email domain recognized' 
+                              : 'Email should belong to your institution'}
+                          </span>
+                        </div>
+                      )
+                    })()}
+                  </div>
+                )}
 
                 {verificationMethod === 'id' && (
                   <div className="grid gap-2">
@@ -503,27 +537,54 @@ export default function SignUpPage() {
             {step === 3 && (
               <>
                 <div className="grid gap-2">
-                  <Label htmlFor="faculty">Faculty / School</Label>
-                  <Input
-                    id="faculty"
-                    placeholder="e.g. Faculty of Engineering"
-                    value={facultyField}
-                    onChange={(e) => setFacultyField(e.target.value)}
-                  />
+                  <Label htmlFor="faculty">Faculty / School *</Label>
+                  <Select value={facultyField} onValueChange={setFacultyField}>
+                    <SelectTrigger id="faculty">
+                      <SelectValue placeholder="Select your faculty" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(() => {
+                        const faculties = institution === 'other' 
+                          ? [] 
+                          : FACULTIES_BY_INSTITUTION[institution === 'other' ? institutionCustom : institution] || []
+                        return faculties.length > 0 ? (
+                          faculties.map((fac) => (
+                            <SelectItem key={fac} value={fac}>{fac}</SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="other" disabled>No faculties available</SelectItem>
+                        )
+                      })()}
+                    </SelectContent>
+                  </Select>
+                  {!institution && (
+                    <p className="text-xs text-muted-foreground">Please select an institution first</p>
+                  )}
                 </div>
 
                 <div className="grid gap-2">
                   <Label htmlFor="department">Department *</Label>
-                  <Input
-                    id="department"
-                    placeholder="e.g. Computer Science"
-                    value={department}
-                    onChange={(e) => setDepartment(e.target.value)}
-                  />
+                  <Select value={department} onValueChange={setDepartment}>
+                    <SelectTrigger id="department" disabled={!facultyField}>
+                      <SelectValue placeholder="Select your department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(() => {
+                        const departments = getDepartmentsByFaculty(facultyField)
+                        return departments.length > 0 ? (
+                          departments.map((dept) => (
+                            <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="other" disabled>Select a faculty first</SelectItem>
+                        )
+                      })()}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="level">Level / Year</Label>
+                  <Label htmlFor="level">Level / Year *</Label>
                   <Select value={level} onValueChange={setLevel}>
                     <SelectTrigger id="level">
                       <SelectValue placeholder="Select your level" />

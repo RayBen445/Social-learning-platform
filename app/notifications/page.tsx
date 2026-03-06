@@ -66,7 +66,43 @@ export default async function NotificationsPage() {
     .order('created_at', { ascending: false })
     .limit(100)
 
-  const getNotificationMessage = (notification: any) => {
+  return (
+    <Suspense fallback={<NotificationsLoading />}>
+      <NotificationsContent userProfile={userProfile} notifications={notifications ?? []} />
+    </Suspense>
+  )
+}
+
+type Notification = {
+  id: string
+  type: string
+  actor_id: string
+  post_id?: string
+  is_read: boolean
+  created_at: string
+  message?: string
+  actor?: {
+    id: string
+    username: string
+    full_name?: string
+    avatar_url?: string
+    is_verified?: boolean
+    verification_type?: string
+  }
+  post?: {
+    id: string
+    title: string
+  }
+}
+
+type UserProfile = {
+  username?: string
+  full_name?: string
+  avatar_url?: string
+}
+
+async function NotificationsContent({ userProfile, notifications }: { userProfile: UserProfile | null; notifications: Notification[] }) {
+  const getNotificationMessage = (notification: Notification) => {
     switch (notification.type) {
       case 'comment':
         return `commented on your post`
@@ -100,7 +136,7 @@ export default async function NotificationsPage() {
     }
   }
 
-  const getNotificationLink = (notification: any) => {
+  const getNotificationLink = (notification: Notification) => {
     if (notification.post_id) {
       return `/posts/${notification.post_id}`
     } else if (notification.actor_id) {
@@ -110,16 +146,8 @@ export default async function NotificationsPage() {
   }
 
   return (
-    <Suspense fallback={<NotificationsLoading />}>
-      <NotificationsContent userProfile={userProfile} notifications={notifications} />
-    </Suspense>
-  )
-}
-
-async function NotificationsContent({ userProfile, notifications }: { userProfile: any; notifications: any }) {
-  return (
     <div className="min-h-screen bg-background">
-      <AppNavbar user={userProfile} />
+      <AppNavbar user={userProfile || undefined} />
       
       <div className="container mx-auto max-w-3xl py-10 px-4">
         <div className="space-y-6">
@@ -143,7 +171,7 @@ async function NotificationsContent({ userProfile, notifications }: { userProfil
           {/* Notifications List */}
           {notifications && notifications.length > 0 ? (
             <div className="space-y-2">
-              {notifications.map((notification: any) => (
+              {notifications.map((notification: Notification) => (
                 <Link key={notification.id} href={getNotificationLink(notification)}>
                   <Card className={`hover:bg-muted/50 cursor-pointer transition ${
                     !notification.is_read ? 'border-primary bg-primary/5' : ''
@@ -172,7 +200,7 @@ async function NotificationsContent({ userProfile, notifications }: { userProfil
                               {notification.actor?.full_name || notification.actor?.username}
                             </span>
                             {notification.actor?.is_verified && (
-                              <VerifiedBadge verificationType={notification.actor.verification_type} size="xs" />
+                              <VerifiedBadge verificationType={notification.actor.verification_type || 'standard'} size="xs" />
                             )}
                             <span className="text-muted-foreground">
                               {getNotificationMessage(notification)}

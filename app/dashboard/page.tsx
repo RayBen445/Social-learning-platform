@@ -82,33 +82,95 @@ export default async function DashboardPage() {
   )
 }
 
-async function DashboardContent({ profile }: { profile: any }) {
+type UserProfile = {
+  id: string
+  username?: string
+  full_name?: string
+  avatar_url?: string
+  bio?: string
+  institution?: string
+  level?: string
+  department?: string
+  total_posts?: number
+  reputation_points?: number
+  profiles?: unknown[]
+}
+
+type CourseData = {
+  id: string
+  code: string
+  title: string
+  department?: string
+}
+
+type GroupData = {
+  id: string
+  name: string
+  group_type?: string
+}
+
+type ConversationData = {
+  id: string
+  last_message: string
+  last_message_at: string
+  participants: Array<{ 
+    profiles: { 
+      username?: string
+      full_name?: string
+      avatar_url?: string
+    } | null 
+  }>
+}
+
+async function DashboardContent({ profile }: { profile: UserProfile | null }) {
   const supabase = await createClient()
 
   // Enrolled courses
-  let userCourses: any[] = []
+  let userCourses: CourseData[] = []
   try {
     const { data: cm } = await supabase
       .from('course_members')
       .select('courses(id, code, title, department)')
       .eq('user_id', profile?.id)
       .limit(6)
-    userCourses = (cm ?? []).map((m: any) => m.courses).filter(Boolean)
+    userCourses = (cm ?? [])
+      .map((m) => {
+        const course = m.courses as CourseData | CourseData[] | null
+        if (Array.isArray(course)) {
+          return course[0] || null
+        }
+        return course
+      })
+      .filter((course: CourseData | null): course is CourseData => course !== null)
   } catch { userCourses = [] }
 
   // Groups
-  let userGroups: any[] = []
+  let userGroups: GroupData[] = []
   try {
     const { data: gm } = await supabase
       .from('group_members')
       .select('groups(id, name, group_type)')
       .eq('user_id', profile?.id)
       .limit(4)
-    userGroups = (gm ?? []).map((m: any) => m.groups).filter(Boolean)
+    userGroups = (gm ?? [])
+      .map((m) => {
+        const group = m.groups as GroupData | GroupData[] | null
+        if (Array.isArray(group)) {
+          return group[0] || null
+        }
+        return group
+      })
+      .filter((group: GroupData | null): group is GroupData => group !== null)
   } catch { userGroups = [] }
 
   // Recent posts (school-scoped activity placeholder)
-  let recentActivity: any[] = []
+  type PostData = {
+    id: string
+    title: string
+    created_at: string
+    profiles: Array<{ username?: string; full_name?: string }> | { username?: string; full_name?: string } | null
+  }
+  let recentActivity: Array<{ id: string; title: string; created_at: string; profiles: { username?: string; full_name?: string } | null }> = []
   try {
     const { data: posts } = await supabase
       .from('posts')
@@ -116,11 +178,16 @@ async function DashboardContent({ profile }: { profile: any }) {
       .eq('is_published', true)
       .order('created_at', { ascending: false })
       .limit(5)
-    recentActivity = posts ?? []
+    recentActivity = (posts ?? []).map((post: PostData) => ({
+      id: post.id,
+      title: post.title,
+      created_at: post.created_at,
+      profiles: Array.isArray(post.profiles) ? post.profiles[0] || null : post.profiles || null
+    }))
   } catch { recentActivity = [] }
 
   // Recent conversations preview
-  let conversations: any[] = []
+  let conversations: ConversationData[] = []
   try {
     const { data: convs } = await supabase
       .from('conversations')
@@ -128,7 +195,7 @@ async function DashboardContent({ profile }: { profile: any }) {
       .contains('participant_ids', [profile?.id])
       .order('last_message_at', { ascending: false })
       .limit(3)
-    conversations = convs ?? []
+    conversations = (convs ?? []) as ConversationData[]
   } catch { conversations = [] }
 
   // Greeting based on server-side time
@@ -239,7 +306,7 @@ async function DashboardContent({ profile }: { profile: any }) {
               <CardContent>
                 {userCourses.length > 0 ? (
                   <ul className="space-y-2">
-                    {userCourses.map((course: any) => (
+                    {userCourses.map((course: CourseData) => (
                       <li key={course.id} className="flex items-center justify-between rounded-md border px-3 py-2">
                         <div className="flex items-center gap-3 min-w-0">
                           <span className="shrink-0 rounded bg-primary/10 px-2 py-0.5 text-xs font-mono font-semibold text-primary">
@@ -278,7 +345,7 @@ async function DashboardContent({ profile }: { profile: any }) {
               <CardContent>
                 {recentActivity.length > 0 ? (
                   <ul className="space-y-2">
-                    {recentActivity.map((post: any) => {
+                    {recentActivity.map((post: { id: string; title: string; created_at: string; profiles: { username?: string; full_name?: string } | null }) => {
                       const author = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles
                       return (
                         <li key={post.id}>
@@ -353,10 +420,10 @@ async function DashboardContent({ profile }: { profile: any }) {
               <CardContent className="space-y-3">
                 {conversations.length > 0 ? (
                   <>
-                    {conversations.map((conv: any) => {
-                      const participants: any[] = (conv.participants ?? [])
-                        .map((p: any) => (Array.isArray(p.profiles) ? p.profiles[0] : p.profiles))
-                        .filter((p: any) => p && p.username !== profile?.username)
+                    {conversations.map((conv: ConversationData) => {
+                      const participants = (conv.participants ?? [])
+                        .map((p) => (Array.isArray(p.profiles) ? p.profiles[0] : p.profiles))
+                        .filter((p): p is { username?: string; full_name?: string; avatar_url?: string } => p !== null && p !== undefined && p.username !== profile?.username)
                       const other = participants[0]
                       return (
                         <Link key={conv.id} href="/messages" className="flex items-center gap-2 hover:bg-muted/50 rounded p-1 -mx-1">
@@ -400,7 +467,7 @@ async function DashboardContent({ profile }: { profile: any }) {
               <CardContent className="space-y-2">
                 {userGroups.length > 0 ? (
                   <>
-                    {userGroups.map((group: any) => (
+                    {userGroups.map((group: GroupData) => (
                       <div key={group.id} className="flex items-center justify-between">
                         <span className="text-xs truncate font-medium">{group.name}</span>
                         {group.group_type && (
