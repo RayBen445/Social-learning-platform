@@ -1,7 +1,7 @@
 'use client'
 
 import { BadgeCheck, Clock } from 'lucide-react'
-import { motion, easeInOut } from 'framer-motion'
+import { motion } from 'framer-motion'
 import {
   Tooltip,
   TooltipContent,
@@ -16,53 +16,6 @@ interface VerifiedBadgeProps {
   animated?: boolean
 }
 
-const badgeVariants = {
-  spin: {
-    animate: {
-      rotate: 360,
-      transition: {
-        duration: 3,
-        repeat: Infinity,
-        ease: 'linear',
-      },
-    },
-  },
-  pulse: {
-    animate: {
-      scale: [1, 1.15, 1],
-      transition: {
-        duration: 2,
-        repeat: Infinity,
-        ease: easeInOut,
-      },
-    },
-  },
-  shimmer: {
-    animate: {
-      boxShadow: [
-        '0 0 0px rgba(59, 130, 246, 0)',
-        '0 0 8px rgba(59, 130, 246, 0.6)',
-        '0 0 0px rgba(59, 130, 246, 0)',
-      ],
-      transition: {
-        duration: 2,
-        repeat: Infinity,
-        ease: easeInOut,
-      },
-    },
-  },
-  bounce: {
-    animate: {
-      y: [0, -3, 0],
-      transition: {
-        duration: 2,
-        repeat: Infinity,
-        ease: easeInOut,
-      },
-    },
-  },
-}
-
 export function VerifiedBadge({
   verificationType,
   size = 'sm',
@@ -74,7 +27,6 @@ export function VerifiedBadge({
   let icon: React.ReactNode
   let tooltip: string
   let animationType: 'pulse' | 'spin' | 'shimmer' | 'bounce' | null = null
-  let color = 'text-blue-500'
 
   if (verificationType === 'pending') {
     icon = <Clock className={`${iconSize} text-yellow-500 flex-shrink-0`} aria-label="Verification pending" />
@@ -86,41 +38,93 @@ export function VerifiedBadge({
     )
     tooltip = '🏫 Institution Verified'
     animationType = 'shimmer'
-    color = 'text-emerald-500'
   } else if (verificationType === 'bot') {
     icon = <BadgeCheck className={`${iconSize} text-green-500 flex-shrink-0`} aria-label="Bot account" />
     tooltip = '🤖 Bot Account'
     animationType = 'spin'
-    color = 'text-green-500'
   } else if (verificationType === 'system') {
     icon = <BadgeCheck className={`${iconSize} text-purple-500 flex-shrink-0`} aria-label="System account" />
     tooltip = '⚙️ System Account'
     animationType = 'bounce'
-    color = 'text-purple-500'
   } else if (verificationType === 'student' || !verificationType) {
-    // Verified student (default)
     icon = (
       <BadgeCheck className={`${iconSize} text-blue-500 flex-shrink-0`} aria-label="Verified Student" />
     )
     tooltip = '🎓 Verified Student'
     animationType = 'pulse'
-    color = 'text-blue-500'
   } else {
-    // Fallback for unrecognised types
     icon = <BadgeCheck className={`${iconSize} text-blue-500 flex-shrink-0`} aria-label="Verified" />
     tooltip = 'Verified'
+  }
+
+  // Render different animations based on type
+  const renderAnimatedIcon = () => {
+    if (!animated || !animationType) {
+      return <div className="inline-flex items-center">{icon}</div>
+    }
+
+    if (animationType === 'spin') {
+      return (
+        <motion.div
+          className="inline-flex items-center"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+        >
+          {icon}
+        </motion.div>
+      )
+    }
+
+    if (animationType === 'pulse') {
+      return (
+        <motion.div
+          className="inline-flex items-center"
+          animate={{ scale: [1, 1.15, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          {icon}
+        </motion.div>
+      )
+    }
+
+    if (animationType === 'shimmer') {
+      return (
+        <motion.div
+          className="inline-flex items-center"
+          animate={{
+            boxShadow: [
+              '0 0 0px rgba(59, 130, 246, 0)',
+              '0 0 8px rgba(59, 130, 246, 0.6)',
+              '0 0 0px rgba(59, 130, 246, 0)',
+            ],
+          }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          {icon}
+        </motion.div>
+      )
+    }
+
+    if (animationType === 'bounce') {
+      return (
+        <motion.div
+          className="inline-flex items-center"
+          animate={{ y: [0, -3, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          {icon}
+        </motion.div>
+      )
+    }
+
+    return <div className="inline-flex items-center">{icon}</div>
   }
 
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <motion.div
-            className="inline-flex items-center"
-            {...(animationType && animated ? badgeVariants[animationType as keyof typeof badgeVariants].animate : {})}
-          >
-            {icon}
-          </motion.div>
+          {renderAnimatedIcon()}
         </TooltipTrigger>
         <TooltipContent>{tooltip}</TooltipContent>
       </Tooltip>
