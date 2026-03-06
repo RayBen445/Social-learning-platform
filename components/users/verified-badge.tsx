@@ -1,7 +1,7 @@
 'use client'
 
 import { BadgeCheck, Clock } from 'lucide-react'
-import { motion, Variants, easeInOut } from 'framer-motion'
+import { motion, easeInOut } from 'framer-motion'
 import {
   Tooltip,
   TooltipContent,
@@ -16,41 +16,49 @@ interface VerifiedBadgeProps {
   animated?: boolean
 }
 
-const badgeVariants: Record<string, Variants> = {
+const badgeVariants = {
   spin: {
-    rotate: 360,
-    transition: {
-      duration: 3,
-      repeat: Infinity,
-      ease: 'linear',
+    animate: {
+      rotate: 360,
+      transition: {
+        duration: 3,
+        repeat: Infinity,
+        ease: 'linear',
+      },
     },
   },
   pulse: {
-    scale: [1, 1.15, 1],
-    transition: {
-      duration: 2,
-      repeat: Infinity,
-      ease: easeInOut,
+    animate: {
+      scale: [1, 1.15, 1],
+      transition: {
+        duration: 2,
+        repeat: Infinity,
+        ease: easeInOut,
+      },
     },
   },
   shimmer: {
-    boxShadow: [
-      '0 0 0px rgba(59, 130, 246, 0)',
-      '0 0 8px rgba(59, 130, 246, 0.6)',
-      '0 0 0px rgba(59, 130, 246, 0)',
-    ],
-    transition: {
-      duration: 2,
-      repeat: Infinity,
-      ease: easeInOut,
+    animate: {
+      boxShadow: [
+        '0 0 0px rgba(59, 130, 246, 0)',
+        '0 0 8px rgba(59, 130, 246, 0.6)',
+        '0 0 0px rgba(59, 130, 246, 0)',
+      ],
+      transition: {
+        duration: 2,
+        repeat: Infinity,
+        ease: easeInOut,
+      },
     },
   },
   bounce: {
-    y: [0, -3, 0],
-    transition: {
-      duration: 2,
-      repeat: Infinity,
-      ease: easeInOut,
+    animate: {
+      y: [0, -3, 0],
+      transition: {
+        duration: 2,
+        repeat: Infinity,
+        ease: easeInOut,
+      },
     },
   },
 }
@@ -109,8 +117,7 @@ export function VerifiedBadge({
         <TooltipTrigger asChild>
           <motion.div
             className="inline-flex items-center"
-            variants={animationType && animated ? badgeVariants[animationType] : undefined}
-            animate={animationType && animated ? animationType : undefined}
+            {...(animationType && animated ? badgeVariants[animationType as keyof typeof badgeVariants].animate : {})}
           >
             {icon}
           </motion.div>
