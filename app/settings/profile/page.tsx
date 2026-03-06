@@ -13,6 +13,7 @@ import { AppNavbar } from '@/components/app-navbar'
 import Link from 'next/link'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { NIGERIA_STATES, INSTITUTIONS_BY_STATE } from '@/lib/nigeria-institutions'
+import { FACULTIES_BY_INSTITUTION, getDepartmentsByFaculty } from '@/lib/faculties-departments'
 
 export default function ProfileSettingsPage() {
   const [profile, setProfile] = useState<any>(null)
@@ -613,21 +614,48 @@ export default function ProfileSettingsPage() {
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="grid gap-2">
                     <Label htmlFor="faculty">Faculty / School</Label>
-                    <Input
-                      id="faculty"
-                      value={faculty}
-                      onChange={(e) => setFaculty(e.target.value)}
-                      placeholder="e.g. Faculty of Science"
-                    />
+                    <Select value={faculty} onValueChange={setFaculty}>
+                      <SelectTrigger id="faculty" disabled={!institution || institution === 'other'}>
+                        <SelectValue placeholder="Select your faculty" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(() => {
+                          const faculties = institution === 'other' 
+                            ? [] 
+                            : FACULTIES_BY_INSTITUTION[institution] || []
+                          return faculties.length > 0 ? (
+                            faculties.map((fac) => (
+                              <SelectItem key={fac} value={fac}>{fac}</SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="other" disabled>No faculties available</SelectItem>
+                          )
+                        })()}
+                      </SelectContent>
+                    </Select>
+                    {(!institution || institution === 'other') && (
+                      <p className="text-xs text-muted-foreground">Select an institution first</p>
+                    )}
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="department">Department</Label>
-                    <Input
-                      id="department"
-                      value={department}
-                      onChange={(e) => setDepartment(e.target.value)}
-                      placeholder="e.g. Computer Science"
-                    />
+                    <Select value={department} onValueChange={setDepartment} disabled={!faculty}>
+                      <SelectTrigger id="department" disabled={!faculty}>
+                        <SelectValue placeholder="Select your department" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(() => {
+                          const departments = getDepartmentsByFaculty(faculty)
+                          return departments.length > 0 ? (
+                            departments.map((dept) => (
+                              <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="other" disabled>Select a faculty first</SelectItem>
+                          )
+                        })()}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">
