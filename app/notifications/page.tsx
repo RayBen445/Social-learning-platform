@@ -87,6 +87,7 @@ type Notification = {
     full_name?: string
     avatar_url?: string
     is_verified?: boolean
+    verification_type?: string
   }
   post?: {
     id: string
@@ -199,7 +200,7 @@ async function NotificationsContent({ userProfile, notifications }: { userProfil
                               {notification.actor?.full_name || notification.actor?.username}
                             </span>
                             {notification.actor?.is_verified && (
-                              <VerifiedBadge verificationType={notification.actor.verification_type} size="xs" />
+                              <VerifiedBadge verificationType={notification.actor.verification_type || 'standard'} size="xs" />
                             )}
                             <span className="text-muted-foreground">
                               {getNotificationMessage(notification)}
