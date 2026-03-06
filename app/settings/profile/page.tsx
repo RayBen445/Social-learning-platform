@@ -197,6 +197,31 @@ export default function ProfileSettingsPage() {
     }
   }
 
+  // Upload avatar immediately and persist to DB — no need to click Save Changes
+  const handleUploadAvatarNow = async () => {
+    if (!avatarFile) return
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    setError(null)
+    try {
+      const avatarUrl = await uploadAvatar(user.id)
+      if (avatarUrl) {
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ avatar_url: avatarUrl, updated_at: new Date().toISOString() })
+          .eq('id', user.id)
+        if (updateError) throw updateError
+        setProfile((prev: any) => ({ ...prev, avatar_url: avatarUrl }))
+        setAvatarPreview(avatarUrl)
+        setAvatarFile(null)
+        setSuccess(true)
+        setTimeout(() => setSuccess(false), 3000)
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to upload avatar')
+    }
+  }
+
   // Upload banner immediately and persist to DB — no need to click Save Changes
   const handleUploadBannerNow = async () => {
     if (!bannerFile) return
