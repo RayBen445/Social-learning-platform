@@ -2,6 +2,7 @@
 -- This version fixes the syntax error with the unique constraint
 
 -- 1. message_conversations table
+-- Simplified version without complex CASE expressions
 CREATE TABLE IF NOT EXISTS public.message_conversations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id_1 UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
@@ -11,14 +12,12 @@ CREATE TABLE IF NOT EXISTS public.message_conversations (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   is_archived BOOLEAN DEFAULT FALSE,
   
-  CONSTRAINT different_users CHECK (user_id_1 != user_id_2)
+  CONSTRAINT different_users CHECK (user_id_1 != user_id_2),
+  CONSTRAINT user_1_less_than_user_2 CHECK (user_id_1 < user_id_2)
 );
 
--- Create unique index for order-independent conversation uniqueness
-CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_conversation ON public.message_conversations (
-  CASE WHEN user_id_1 < user_id_2 THEN user_id_1 ELSE user_id_2 END,
-  CASE WHEN user_id_1 < user_id_2 THEN user_id_2 ELSE user_id_1 END
-) WHERE is_archived = FALSE;
+-- Simple unique index (users are already ordered by CHECK constraint)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_conversation ON public.message_conversations (user_id_1, user_id_2) WHERE is_archived = FALSE;
 
 CREATE INDEX IF NOT EXISTS idx_message_conversations_user_id_1 ON public.message_conversations(user_id_1);
 CREATE INDEX IF NOT EXISTS idx_message_conversations_user_id_2 ON public.message_conversations(user_id_2);
