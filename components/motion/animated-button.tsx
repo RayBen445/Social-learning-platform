@@ -1,10 +1,14 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Button, ButtonProps } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
+import type { VariantProps } from 'class-variance-authority'
+import { cva } from 'class-variance-authority'
 import { buttonHoverVariants } from '@/lib/animations'
 
-interface AnimatedButtonProps extends ButtonProps {
+const buttonVariants = cva('inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50')
+
+interface AnimatedButtonProps extends React.ComponentProps<'button'>, VariantProps<typeof buttonVariants> {
   children: React.ReactNode
 }
 
